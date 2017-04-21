@@ -1,19 +1,9 @@
 var express = require('express')
 var request = require('request-promise')
-var fs = require('fs')
-var nunjucks = require('nunjucks')
 var morgan = require('morgan')
 var app = express()
 var utility = require('./utility')
 var Promise = require('bluebird')
-
-
-// Templating Configuration
-nunjucks.configure('dist', {
-    autoescape: true,
-    express: app,
-    watch: false
-})
 
 
 const cachePriceHistories = async (coins) => {
@@ -84,16 +74,9 @@ Promise.props({
 })
 .catch(error => console.error('Failed to retrieve ticker list!', error))
 
-
-
-
 // Logging
 app.use(morgan('short'))
 
-// Production
-app.get('/', (req, res) => {
-    return res.render('dist/index.html')
-})
 
 app.get('/api/ticker', async (req, res) => {
     if (cache.ticker && cache.ticker.length > 0) return res.json(cache.ticker)
@@ -104,9 +87,6 @@ app.get('/api/price/:coin', (req, res) => {
     return res.json(cache.price_histories[req.params.coin])
 })
 
-app.use('/assets', express.static('./source/assets'))
-app.use('/static', express.static('./dist/static'))
-
-app.listen(3000, function() {
-    console.log('Example app listening on port 3000!')
+app.listen(4000, function() {
+    console.log('Example app listening on port 4000!')
 })
