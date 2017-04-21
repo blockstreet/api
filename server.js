@@ -78,6 +78,10 @@ Promise.props({
 app.use(morgan('short'))
 
 
+app.get('/api', (req, res) => {
+    return res.send(200)
+})
+
 app.get('/api/ticker', async (req, res) => {
     if (cache.ticker && cache.ticker.length > 0) return res.json(cache.ticker)
     return res.json(JSON.parse(await request('http://api.coinmarketcap.com/v1/ticker/?convert=USD')))
