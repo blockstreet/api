@@ -6,9 +6,17 @@ var utility = require('./utility')
 var Promise = require('bluebird')
 
 
+// CORS
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+    res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
+    next()
+})
+
 const cachePriceHistories = async (coins) => {
     return await Promise.all(
-        coins.map(coin => request(`https://graphs.coinmarketcap.com/v1/datapoints/${coin}/`))
+        coins.map(coin => request(`http://graphs.coinmarketcap.com/v1/datapoints/${coin}/`))
     ).then((responses) => {
         const result = {}
 
@@ -21,7 +29,40 @@ const cachePriceHistories = async (coins) => {
     .catch(error => console.error('Failed to retrieve coin:', error))
 }
 
-const cacheTicker = async () => JSON.parse(await request('http://api.coinmarketcap.com/v1/ticker/?convert=USD'))
+const retrieveTicker = async () => JSON.parse(
+	await request('http://api.coinmarketcap.com/v1/ticker/?convert=USD')
+)
+
+const transformers = {
+    cryptoCompare: {
+        price_history: coins => coins.map((coin) => {
+            return [
+                coin.time,
+                coin.close
+            ]
+        })
+    }
+}
+
+const mapTicker = tickerArray => tickerArray
+    .slice(0, cache.limitCoins)
+    .map((currency) => {
+        // Map Properties and Cast values to normalized format
+        return {
+            id: currency.id,
+            name: currency.name,
+            symbol: currency.symbol,
+            rank: Number(currency.rank),
+            price: Number(currency.price_usd),
+            market_cap: Number(currency.market_cap_usd),
+            supply: Number(currency.available_supply),
+            percent_change_hour: Number(currency.percent_change_1h),
+            percent_change_day: Number(currency.percent_change_24h),
+            percent_change_week: Number(currency.percent_change_7d),
+            volume_day: Number(currency['24h_volume_usd']),
+            last_updated: Number(currency.last_updated)
+        }
+    })
 
 let cache = {
     limitCoins: 100,
@@ -46,14 +87,11 @@ let pulls = {
 
 // Retrieve top N cryptocurrencies to cache
 Promise.props({
-    slugs: request('https://files.coinmarketcap.com/generated/search/quick_search.json'),
+    slugs: request('http://files.coinmarketcap.com/generated/search/quick_search.json'),
     ticker: request('http://api.coinmarketcap.com/v1/ticker/?convert=USD')
 }).then(async (response) => {
-    cache.slugs = JSON.parse(response.slugs).splice(0, cache.limitCoins)
-    cache.ticker = JSON.parse(response.ticker).splice(0, cache.limitCoins).map((coin, index) => {
-        coin.slug = cache.slugs[index].slug
-        return coin
-    })
+    cache.slugs = JSON.parse(response.slugs).slice(0, cache.limitCoins)
+    cache.ticker = mapTicker(JSON.parse(response.ticker))
     pulls.ticker.last = pulls.slugs.last = pulls.price_histories.last = new Date()
 
     // Initialize
@@ -68,7 +106,7 @@ Promise.props({
 
     // Set interval loop
     setInterval(async () => {
-        cache.ticker = await cacheTicker()
+        cache.ticker = mapTicker(await retrieveTicker())
         console.log('Ticker Cache updated!\n', cache.ticker.length)
     }, pulls.ticker.frequency)
 })
