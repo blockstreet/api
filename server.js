@@ -14,20 +14,44 @@ app.use(function(req, res, next) {
     next()
 })
 
+
 const cachePriceHistories = async (coins) => {
-    return await Promise.all(
-        coins.map(coin => request(`http://graphs.coinmarketcap.com/v1/datapoints/${coin}/`))
-    ).then((responses) => {
-        const result = {}
+    return Promise.each(
+        coins.map((coin, index) => {
+            return new Promise((resolve) => {
+                setTimeout(() => resolve(
+                    request(utility.resourceUrl(coin))
+                ), (index * 1000))
+            })
+        }),
+        (result, index) => {
+            cache.price_histories[cache.slugs[index].slug] = JSON.parse(result).Data.map(coin => [coin.time, coin.close])
+            console.log(`${index + 1} | ${cache.slugs[index].name} has been persisted to cache`)
 
-        responses.forEach((response, index) => {
-            result[coins[index]] = JSON.parse(response).price_usd
-        })
-
-        return result
-    })
-    .catch(error => console.error('Failed to retrieve coin:', error))
+            if (index === coins.length - 1) console.log('All currencies cached.')
+        }
+    )
 }
+
+// const cachePriceHistories = async (coins) => {
+//     return await Promise.all(
+//         coins.map((coin, index) => {
+//             // Make requests s
+//             setTimeout(() => {
+//                 return request(`http://graphs.coinmarketcap.com/v1/datapoints/${coin}/`)
+//             }, (index * 1000))
+//         })
+//     ).then((responses) => {
+//         const result = {}
+//
+//         responses.forEach((response, index) => {
+//             result[coins[index]] = JSON.parse(response).price_usd
+//         })
+//
+//         return result
+//     })
+//     .catch(error => console.error('Failed to retrieve coin:', error))
+// }
 
 const retrieveTicker = async () => JSON.parse(
 	await request('http://api.coinmarketcap.com/v1/ticker/?convert=USD')
@@ -66,7 +90,7 @@ const mapTicker = tickerArray => tickerArray
 
 let cache = {
     limitCoins: 100,
-    price_histories: null,
+    price_histories: {},
     ticker: null,
     slugs: null
 }
@@ -95,20 +119,20 @@ Promise.props({
     pulls.ticker.last = pulls.slugs.last = pulls.price_histories.last = new Date()
 
     // Initialize
-    cache.price_histories = await cachePriceHistories(cache.slugs.map(coin => coin.slug))
+    cachePriceHistories(cache.slugs.map(coin => coin.symbol))
     console.log('Currency Cache updated!\n', Object.keys(cache.price_histories).join(', '))
 
     // Set interval loop
-    setInterval(async () => {
-        cache.price_histories = await cachePriceHistories(cache.slugs.map(coin => coin.slug))
-        console.log('Price History Cache updated!\n', Object.keys(cache.price_histories).join(', '))
-    }, pulls.price_histories.frequency)
-
-    // Set interval loop
-    setInterval(async () => {
-        cache.ticker = mapTicker(await retrieveTicker())
-        console.log('Ticker Cache updated!\n', cache.ticker.length)
-    }, pulls.ticker.frequency)
+    // setInterval(async () => {
+    //     cache.price_histories = await cachePriceHistories(cache.slugs.map(coin => coin.slug))
+    //     console.log('Price History Cache updated!\n', Object.keys(cache.price_histories).join(', '))
+    // }, pulls.price_histories.frequency)
+    //
+    // // Set interval loop
+    // setInterval(async () => {
+    //     cache.ticker = mapTicker(await retrieveTicker())
+    //     console.log('Ticker Cache updated!\n', cache.ticker.length)
+    // }, pulls.ticker.frequency)
 })
 .catch(error => console.error('Failed to retrieve ticker list!', error))
 
@@ -128,6 +152,8 @@ app.get('/api/ticker', async (req, res) => {
 app.get('/api/price/:coin', (req, res) => {
     return res.json(cache.price_histories[req.params.coin])
 })
+
+app.get('/api/cache', (req, res) => res.json(cache))
 
 app.listen(4000, function() {
     console.log('Example app listening on port 4000!')
