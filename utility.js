@@ -28,15 +28,5 @@ module.exports = {
         return lines.map(function(line) {
             return line.replace(/^\s+/gm, '')
         }).join(' ').trim()
-    },
-
-    resourceUrl(id) {
-        return 'https://min-api.cryptocompare.com/data/histoday' +
-            '?aggregate=1' +
-            '&allData=true' +
-            '&e=CCCAGG' +
-            '&tryConversion=true' +
-            '&tsym=USD' +
-            `&fsym=${id}`
     }
 }
