@@ -29,49 +29,25 @@ app.use(function(req, res, next) {
 })
 
 // Routes
-app.get('/api', (req, res) => {
-    return res.send(200)
-})
+app.get('/api', (req, res) => res.send(200))
 
 app.get('/api/price', async (req, res) => {
     if (cache.ticker && cache.ticker.length > 0) return res.json(cache.ticker)
     return res.json(JSON.parse(await request('http://api.coinmarketcap.com/v1/ticker/?convert=USD')))
 })
 
-app.get('/api/price/:coin', (req, res) => {
-    return res.json(cache.price_histories[req.params.coin])
-})
+app.get('/api/price/:coin', (req, res) => res.json(cache.price_histories[req.params.coin]))
 
 app.get('/api/cache', (req, res) => res.json(cache))
 
-
-app.get('/api/education', async (req, res) =>
-    res.json(
-        JSON.parse(
-            await request('https://raw.githubusercontent.com/blockstreet/content/staging/education/index.md')
-        )
-    )
-)
-
-app.get('/api/education/:file', async (req, res) => {
+app.get('/api/content/*', async (req, res) => {
     let result
 
-    try { result = await fileHandler(req.params.file, null, { query: req.query }) }
-    catch (error) { console.error(error) }
+    const directories = req.params['0'].split('/')
+    const file = (directories.length > 1 ? directories.pop() : directories[directories.length - 1])
+    const subpath = (directories.length > 0 ? directories.join('/') : null)
 
-    if (result.type === 'json') res.json(result.payload)
-    if (result.type === 'markdown') res.send(result.payload)
-
-    if (result.type === 'html') {
-        res.set('Content-Type', 'text/html')
-        res.send(result.payload)
-    }
-})
-
-app.get('/api/education/:directory/:file', async (req, res) => {
-    let result
-
-    try { result = await fileHandler(req.params.file, req.params.directory, { query: req.query }) }
+    try { result = await fileHandler(file, subpath, { query: req.query, branch: process.env.BRANCH }) }
     catch (error) { console.error(error) }
 
     if (result.type === 'json') res.json(result.payload)

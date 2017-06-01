@@ -20,7 +20,7 @@ module.exports = async (file, directory, options) => {
         return {
             type: 'json',
             payload: await request({
-                uri: `https://raw.githubusercontent.com/blockstreet/content/staging/education/${fileUri}`,
+                uri: `https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`,
                 json: true
             })
         }
@@ -31,7 +31,7 @@ module.exports = async (file, directory, options) => {
         if (options.query.format === 'markdown') {
             return {
                 type: 'markdown',
-                payload: await request(`https://raw.githubusercontent.com/blockstreet/content/staging/education/${fileUri}`)
+                payload: await request(`https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`)
             }
         } else {
             console.log('URI: ', fileUri)
@@ -39,7 +39,7 @@ module.exports = async (file, directory, options) => {
             return {
                 type: 'html',
                 payload: converter.makeHtml(
-                    await request(`https://raw.githubusercontent.com/blockstreet/content/staging/education/${fileUri}`)
+                    await request(`https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`)
                 )
             }
         }
