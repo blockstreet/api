@@ -47,6 +47,8 @@ app.get('/api/content/*', async (req, res) => {
     const file = (directories.length > 1 ? directories.pop() : directories[directories.length - 1])
     const subpath = (directories.length > 0 ? directories.join('/') : null)
 
+    console.log(subpath)
+
     try { result = await fileHandler(file, subpath, { query: req.query, branch: process.env.BRANCH }) }
     catch (error) { console.error(error) }
 
@@ -60,8 +62,8 @@ app.get('/api/content/*', async (req, res) => {
 })
 
 
-app.listen(4000, function() {
-    console.log('Example app listening on port 4000!')
+app.listen(process.env.PORT, function() {
+    console.log(`Example app listening on port ${process.env.PORT}!`)
 
     // Retrieve top N cryptocurrencies to cache
     if (process.env.CACHE_TICKER === 'true') {

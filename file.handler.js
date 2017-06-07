@@ -15,6 +15,8 @@ module.exports = async (file, directory, options) => {
     // Create the URI path for the request
     const fileUri = (directory ? `${directory}/${file}` : file)
 
+    console.log('fileURI: ', `https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`)
+
     // If file type is JSON
     if (extension === 'json') {
         return {
@@ -28,19 +30,28 @@ module.exports = async (file, directory, options) => {
 
     // If file type is Markdown
     if (extension === 'md') {
+        let result
+
+        try {
+            result = await request({
+                uri: `https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`
+            })
+        } catch (error) {
+            console.log('Failed to retrieve URI: ', error)
+        }
+
         if (options.query.format === 'markdown') {
             return {
                 type: 'markdown',
-                payload: await request(`https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`)
+                payload: result
             }
+
         } else {
-            console.log('URI: ', fileUri)
+            console.log('URI: ', fileUri, result)
 
             return {
                 type: 'html',
-                payload: converter.makeHtml(
-                    await request(`https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`)
-                )
+                payload: converter.makeHtml(result)
             }
         }
     }
