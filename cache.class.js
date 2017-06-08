@@ -97,7 +97,7 @@ module.exports = class Cache {
         try { slugs = await request('http://files.coinmarketcap.com/generated/search/quick_search.json') }
         catch (error) { console.error('Failed to retrieve slugs', error) }
 
-        this.state.slugs.data = JSON.parse(slugs).slice(0, this.state.limit).map(coin => coin.symbol)
+        this.state.slugs.data = JSON.parse(slugs).slice(0, this.state.limit).map(coin => coin.symbol.toLowerCase())
     }
 
     async pullTicker(input) {
