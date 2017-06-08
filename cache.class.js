@@ -1,4 +1,4 @@
-const request = require('request')
+const request = require('request-promise')
 const Promise = require('bluebird')
 
 module.exports = class Cache {
@@ -57,23 +57,37 @@ module.exports = class Cache {
     async pullHistory() {
         if (this.state.slugs === null || this.state.slugs === 0) return console.error('There are no slugs to pull histories with.')
 
-        return Promise.each(
-            this.state.slugs.data.map((coin, index) => {
-                return new Promise((resolve) => {
-                    setTimeout(() => resolve(
-                        request(this.transformers.cryptocompare.uri(coin))
-                    ), (index * 1000))
-                })
-            }),
-            (result, index) => {
-                const slug = this.state.slugs.data[index]
+        try {
+            return Promise.each(
+                this.state.slugs.data.map((coin, index) => {
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            console.log(`${index + 1} | Retrieving ${coin} from provider...`)
+                            return resolve(request(this.transformers.cryptocompare.uri(coin)))
+                        }, (index * 1000))
+                    })
+                }),
+                (result, index) => {
+                    const slug = this.state.slugs.data[index]
+                    console.log(`${index + 1} | Received result from ${slug} request.`)
 
-                this.state.history.data[slug] = this.transformers.cryptocompare.history(JSON.parse(result).Data)
-                console.log(`${index + 1} | ${this.state.slugs.data[index].name} has been persisted to cache`)
+                    try {
+                        result = JSON.parse(result)
+                    } catch (error) {
+                        console.error(error)
+                        console.log(`Failed to parse results from ${slug}`)
+                        console.log(`using url: ${this.transformers.cryptocompare.uri(slug)}`)
+                    }
 
-                if (index === this.state.slugs.data.length - 1) console.log('All currencies cached.')
-            }
-        )
+                    this.state.history.data[slug] = this.transformers.cryptocompare.history(result.Data)
+                    console.log(`${index + 1} | ${slug} has been persisted to cache`)
+
+                    if (index === this.state.slugs.data.length - 1) console.log('All currencies cached.')
+                }
+            )
+        } catch (error) {
+            console.log('Error setting up staggered history retrieval: ', error)
+        }
     }
 
     async pullSlugs(input) {
@@ -83,7 +97,6 @@ module.exports = class Cache {
         try { slugs = await request('http://files.coinmarketcap.com/generated/search/quick_search.json') }
         catch (error) { console.error('Failed to retrieve slugs', error) }
 
-        console.log(slugs)
         this.state.slugs.data = JSON.parse(slugs).slice(0, this.state.limit).map(coin => coin.symbol)
     }
 
@@ -94,7 +107,6 @@ module.exports = class Cache {
         try { ticker = await request('http://api.coinmarketcap.com/v1/ticker/?convert=USD') }
         catch (error) { console.error('Failed to retrieve ticker', error) }
 
-        console.log(ticker)
         this.state.ticker.data = this.transformers.coinmarketcap.prices(JSON.parse(ticker).slice(0, this.state.limit))
     }
 
