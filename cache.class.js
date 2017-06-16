@@ -30,7 +30,7 @@ module.exports = class Cache {
                     '&e=CCCAGG' +
                     '&tryConversion=true' +
                     '&tsym=USD' +
-                    `&fsym=${id}`
+                    `&fsym=${String(id).toUpperCase()}`
             },
 
             coinmarketcap: {
@@ -74,10 +74,11 @@ module.exports = class Cache {
                     try {
                         result = JSON.parse(result)
                     } catch (error) {
-                        console.error(error)
-                        console.log(`Failed to parse results from ${slug}`)
-                        console.log(`using url: ${this.transformers.cryptocompare.uri(slug)}`)
+                        return console.log(`Failed to parse results from ${slug} using url: ${this.transformers.cryptocompare.uri(slug)}`, error)
                     }
+
+                    if (!result.Data) return console.error('Failed to retrieve price history from provider.', result)
+                    if (result.Data.length === 0) return console.error('Received empty data set from provider.', result)
 
                     this.state.history.data[slug] = this.transformers.cryptocompare.history(result.Data)
                     console.log(`${index + 1} | ${slug} has been persisted to cache`)
@@ -120,7 +121,7 @@ module.exports = class Cache {
     startHistoryInterval() {
         return setInterval(async () => {
             this.pullHistory()
-            console.log('History cache updated!\n', this.state.history.data.length)
+            console.log('History cache updated!\n', Object.keys(this.state.history.data).length)
         }, this.state.history.frequency)
     }
 }
