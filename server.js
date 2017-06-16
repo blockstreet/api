@@ -16,8 +16,8 @@ const Cache = require('./cache.class')
 
 // Instantation
 const cache = new Cache(100, {
-    history: (1000 * 60 * 0.5), // 1 Minutes
-    ticker: (1000 * 60 * 0.5) // 1 Minutes
+    history: (1000 * 60 * 60 * 12), // 12 Hours
+    ticker: (1000 * 60 * 5) // 5 Minutes
 })
 
 app.use(morgan('short'))
