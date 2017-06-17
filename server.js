@@ -1,27 +1,27 @@
 // External dependencies
 const express = require('express')
-const request = require('request-promise')
 const morgan = require('morgan')
 const app = express()
-const utility = require('./utility')
 const Promise = require('bluebird')
 const env = require('node-env-file')
+const axios = require('axios')
 
 // Environemnt variables
 env(`${__dirname}/.environment`)
 
 // Application dependencies
-const fileHandler = require('./file.handler')
-const Cache = require('./cache.class')
+const fileHandler = require('./classes/filehandler.class')
+const DataManager = require('./classes/data.manager')
 
 // Instantation
-const cache = new Cache(100, {
-    history: (1000 * 60 * 60 * 12), // 12 Hours
-    ticker: (1000 * 60 * 5) // 5 Minutes
-})
+axios.interceptors.response.use(response => response.data, error => Promise.reject(error))
 
+const database = require('./database/index')()
+const dataManager = new DataManager(database)
+
+// Middleware
 app.use(morgan('short'))
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*")
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
     res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
@@ -31,14 +31,13 @@ app.use(function(req, res, next) {
 // Routes
 app.get('/api', (req, res) => res.send(200))
 
-app.get('/api/price', async (req, res) => {
-    if (cache.state.ticker && cache.state.ticker.data.length > 0) return res.json(cache.state.ticker.data)
-    return res.json(JSON.parse(await request('http://api.coinmarketcap.com/v1/ticker/?convert=USD')))
-})
+app.get('/api/currencies', async (req, res) => res.json(database.get('currencies').value()))
 
-app.get('/api/price/:coin', (req, res) => res.json(cache.state.history.data[req.params.coin.toLowerCase()]))
+app.get('/api/currencies/:id', (req, res) => res.json(database.get('currencies').find({ id: req.params.id.toLowerCase() }).value()))
 
-app.get('/api/cache', (req, res) => res.json(cache.state))
+app.get('/api/currencies/:id/history', (req, res) => res.json(database.get(`history[${req.params.id.toLowerCase()}]`).value()))
+
+app.get('/api/cache', (req, res) => res.json(database.value()))
 
 app.get('/api/content/*', async (req, res) => {
     let result
@@ -62,27 +61,20 @@ app.get('/api/content/*', async (req, res) => {
 })
 
 
-app.listen(process.env.PORT, function() {
-    console.log(`Example app listening on port ${process.env.PORT}!`)
+app.listen(process.env.PORT, () => {
+    console.log(`Application is listening on port ${process.env.PORT}!`)
 
     // Retrieve top N cryptocurrencies to cache
     if (process.env.CACHE_TICKER === 'true') {
-        Promise.props({
-            slugs: request('https://files.coinmarketcap.com/generated/search/quick_search.json'),
-            ticker: request('http://api.coinmarketcap.com/v1/ticker/?convert=USD')
-        }).then(async (response) => {
-            // Retrieve and cache cryptoasset data
-            cache.pullSlugs(response.slugs)
-            cache.pullTicker(response.ticker)
-            cache.pullHistory()
+        dataManager.getMetas((metas) => {
+            // Retrieve initial data
+            dataManager.getCurrencies()
+            dataManager.getHistories(metas)
 
-            // Update last pulled date
-            cache.state.ticker.updated = cache.state.slugs.updated = cache.state.history.updated = new Date()
-
-            // Begin pull intervals based on specified frequency
-            cache.startHistoryInterval()
-            cache.startTickerInterval()
-        }).catch(error => console.error('Failed to retrieve ticker list!', error))
+            // Initialize data refresh intervals
+            dataManager.startIntervalCurrencies()
+            dataManager.startIntervalHistories(metas)
+        })
     } else {
         console.log('Ticker caching disabled.')
     }
