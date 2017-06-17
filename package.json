@@ -17,6 +17,7 @@
     "babel-watch": "^2.0.6"
   },
   "dependencies": {
+    "async-redis": "^1.0.0",
     "axios": "^0.16.2",
     "bluebird": "^3.5.0",
     "colors": "^1.1.2",
@@ -27,6 +28,8 @@
     "morgan": "^1.8.1",
     "node-env-file": "^0.1.8",
     "nodemon": "^1.11.0",
+    "redis": "^2.7.1",
+    "redis-jsonify": "github:krasiyan/node-redis-jsonify",
     "request": "^2.81.0",
     "request-promise": "^4.2.0",
     "showdown": "^1.6.4"

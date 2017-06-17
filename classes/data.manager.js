@@ -8,34 +8,45 @@ module.exports = class DataManager {
         this.database = database
         this.dataTransformer = new DataTransformer()
         this.dataService = new DataService(this.dataTransformer)
-        this.timestamps = database.get('timestamps').value()
-    }
-
-    async getMetas(callback) {
-        const metas = await this.dataService.getMetas()
-        this.database.set('metas', metas).write()
-        this.database.get('timestamps').set('metas', moment().format()).write()
-        if (callback) callback(metas)
     }
 
     async getCurrencies(callback) {
         const currencies = await this.dataService.getCurrencies()
-        this.database.set('currencies', currencies).write()
-        this.database.get('timestamps').set('currencies', moment().format()).write()
+        currencies.forEach(async currency => await this.database.set(`currencies:${currency.id}`, currency))
+        this.database.set('timestamps:currencies', moment().format())
+
         if (callback) callback(currencies)
     }
 
     getHistories(metas, callback) {
         if (!Array.isArray(metas)) return Error('Method getHistories received non Array argument: ', typeof metas)
 
-        this.dataService.getHistories(metas, (history, meta, index) => {
-            this.database.get('history').set(meta.slug, history).write()
-            console.log(`${index + 1} | ${colors.cyan(meta.name)} has been persisted to cache`)
+        // const timestamps = database.get('timestamps').value()
+        const ranges = ['daily', 'hourly', 'minutely']
 
-            if (index === metas.length - 1) {
-                console.log('All price histories have been cached.')
-                this.database.get('timestamps').set('history', moment().format()).write()
-            }
+        ranges.forEach((range) => {
+            this.dataService.getHistories(metas, range, (history, meta, index) => {
+                this.database.set(`history:${range}:${meta.id}`, history)
+                console.log(`${index + 1} | ${range} | ${colors.cyan(meta.name)} has been persisted to cache`)
+
+                if (index === metas.length - 1) {
+                    console.log('All price histories have been cached.')
+                    this.database.set(`timestamps:${range}`, moment().format())
+                }
+            })
+        })
+    }
+
+    calculateChangeMonth() {
+        const currencies = this.database.get('currencies').value()
+        const history = this.database.get('history:hourly').value()
+
+        currencies.forEach((currency) => {
+            if (!history[currency.id]) return
+
+            const lastEntry = history[currency.id][history[currency.id].length - 1]
+            currency.percent_change_month = ((currency.price - lastEntry.close) / lastEntry.close) * 100
+            this.database.get('currencies').find({ id: currency.id }).set(currency).write()
         })
     }
 

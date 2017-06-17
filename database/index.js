@@ -1,11 +1,15 @@
 const Database = require('./database.class')
+const colors = require('colors')
 
 module.exports = () => {
     const database = new Database()
-    const seeder = require('./database.default')
 
-    Object.keys(seeder).forEach((key) => {
-        if (!database.has(key).value()) database.set(key, seeder[key]).write()
+    database.redis.on('error', (err) => {
+       console.log('Error connecting to Redis: ', err)
+    })
+
+    database.redis.on('ready', () => {
+        console.log(`Connected to the ${colors.red('Redis')} database.`)
     })
 
     return database

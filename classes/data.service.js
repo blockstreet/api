@@ -24,7 +24,7 @@ module.exports = class DataService {
         return this.transformer.currencies(result)
     }
 
-    async getHistories(metas, callback) {
+    async getHistories(metas, range, callback) {
         if (!metas) return Error('Method getHistories received no arguments.')
         if (metas.length === 0) return Error('Method getHistories received no currency metas for retrieval.')
 
@@ -33,7 +33,7 @@ module.exports = class DataService {
             metas.map((meta, index) => {
                 return new Promise((resolve) => {
                     setTimeout(() => {
-                        return resolve(axios.get(this.transformer.uriPath(meta.symbol)))
+                        return resolve(axios.get(this.transformer.uriPath(meta.symbol, range)))
                     }, (index * Number(process.env.INTERVAL_REQUEST_HISTORIES)))
                 })
             }),

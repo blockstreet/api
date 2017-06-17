@@ -31,11 +31,13 @@ app.use((req, res, next) => {
 // Routes
 app.get('/api', (req, res) => res.send(200))
 
-app.get('/api/currencies', async (req, res) => res.json(database.get('currencies').value()))
+app.get('/api/currencies', async (req, res) => res.json(await database.getAll('currencies:*')))
 
-app.get('/api/currencies/:id', (req, res) => res.json(database.get('currencies').find({ id: req.params.id.toLowerCase() }).value()))
-
-app.get('/api/currencies/:id/history', (req, res) => res.json(database.get(`history[${req.params.id.toLowerCase()}]`).value()))
+app.get('/api/currencies/:id', async (req, res) => res.json(await database.get(`currencies:${req.params.id.toLowerCase()}`)))
+app.get('/api/currencies/:id/history', async (req, res) => res.json(await database.get(`history:daily:${req.params.id.toLowerCase()}`)))
+app.get('/api/currencies/:id/history/:range', async (req, res) => {
+    return res.json(await database.get(`history:${req.params.range.toLowerCase()}:${req.params.id.toLowerCase()}`))
+})
 
 app.get('/api/cache', (req, res) => res.json(database.value()))
 
@@ -45,8 +47,6 @@ app.get('/api/content/*', async (req, res) => {
     const directories = req.params['0'].split('/')
     const file = (directories.length > 1 ? directories.pop() : directories[directories.length - 1])
     const subpath = (directories.length > 0 ? directories.join('/') : null)
-
-    // console.log(subpath)
 
     try { result = await fileHandler(file, subpath, { query: req.query, branch: process.env.BRANCH }) }
     catch (error) { console.error(error) }
@@ -66,14 +66,13 @@ app.listen(process.env.PORT, () => {
 
     // Retrieve top N cryptocurrencies to cache
     if (process.env.CACHE_TICKER === 'true') {
-        dataManager.getMetas((metas) => {
-            // Retrieve initial data
-            dataManager.getCurrencies()
-            dataManager.getHistories(metas)
+        dataManager.getCurrencies(async (currencies) => {
+            // Retrieve initial price history data
+            dataManager.getHistories(currencies)
 
             // Initialize data refresh intervals
             dataManager.startIntervalCurrencies()
-            dataManager.startIntervalHistories(metas)
+            dataManager.startIntervalHistories(currencies)
         })
     } else {
         console.log('Ticker caching disabled.')

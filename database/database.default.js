@@ -1,5 +1,7 @@
 module.exports = {
-    history: {},
+    history_daily: {},
+    history_hourly: {},
+    history_minutely: {},
     limit: 100,
     timestamps: {
         metas: null,
