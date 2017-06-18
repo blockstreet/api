@@ -1,6 +1,6 @@
 module.exports = class DataTransformer {
     metas(metas) {
-        return metas.slice(0, Number(process.env.LIMIT_CURRENCIES)).map(meta => ({
+        return metas.slice(0, config.get('limit.currencies')).map(meta => ({
             symbol: meta.symbol,
             name: meta.name,
             slug: meta.slug
@@ -14,18 +14,29 @@ module.exports = class DataTransformer {
         ])
     }
 
-    uriPath(symbol) {
-        return 'https://min-api.cryptocompare.com/data/histoday' +
-            '?aggregate=1' +
-            '&allData=true' +
-            '&e=CCCAGG' +
-            '&tryConversion=true' +
-            '&tsym=USD' +
-            `&fsym=${String(symbol).toUpperCase()}`
+    uriPath(symbol, range) {
+        symbol = String(symbol).toUpperCase()
+
+        if (range === 'daily')
+            return 'https://min-api.cryptocompare.com/data/histoday' +
+                '?aggregate=1' +
+                '&allData=true' +
+                '&e=CCCAGG' +
+                '&tryConversion=true' +
+                '&tsym=USD' +
+                `&fsym=${symbol}`
+
+        if (range === 'hourly')
+            return `https://min-api.cryptocompare.com/data/histohour?aggregate=1&e=CCCAGG&tryConversion=true&tsym=USD&fsym=${symbol}&limit=730`
+
+        if (range === 'minutely')
+            return `https://min-api.cryptocompare.com/data/histominute?aggregate=1&e=CCCAGG&tryConversion=true&tsym=USD&fsym=${symbol}`
+
+        return Error('Method uriPath received bad argument(range)')
     }
 
     currencies(currencies) {
-        return currencies.slice(0, Number(process.env.LIMIT_CURRENCIES)).map((currency) => {
+        return currencies.slice(0, config.get('limit.currencies')).map((currency) => {
             return {
                 id: currency.id,
                 name: currency.name,
