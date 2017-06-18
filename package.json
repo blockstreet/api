@@ -5,8 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "babel-watch ./server.js",
-    "dev": "nodemon ./server.js"
+    "start": "babel-watch ./application/server.js",
+    "dev": "nodemon ./application/server.js",
+    "config": "node ./build/config.js"
   },
   "author": "",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "axios": "^0.16.2",
     "bluebird": "^3.5.0",
     "colors": "^1.1.2",
+    "config": "^1.26.1",
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
     "lowdb": "^0.16.2",

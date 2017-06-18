@@ -2,15 +2,20 @@ const redis = require('redis')
 const asyncify = require('async-redis')
 const jsonify = require('redis-jsonify')
 const Promise = require('bluebird')
+const colors = require('colors')
 
 module.exports = class Database {
     constructor() {
         this.redis = asyncify.decorate(redis.createClient({
-            host: process.env.REDIS_HOST,
-            password: process.env.REDIS_PASSWORD
+            host: config.get('database.redis.host'),
+            password: config.get('database.redis.password')
         }))
 
-        if (!process.env.REDIS_PERSIST) this.redis.flushdb()
+        if (!config.get('database.redis.persist')) {
+            this.redis.flushdb().then((data) => {
+                console.log(`Redis persist set to ${colors.red('false')}, database has been wiped`)
+            })
+        }
     }
 
     set(key, value) {
@@ -28,8 +33,8 @@ module.exports = class Database {
         return Error('Method setAll received invalid value type, not of type Array.')
     }
 
-    get(key) {
-        return this.redis.get(key).then(data => JSON.parse(data))
+    async get(key) {
+        return JSON.parse(await this.redis.get(key))
     }
 
     getAll(key) {

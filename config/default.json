@@ -1,0 +1,30 @@
+{
+    "application": {
+        "ticker": {
+            "persist": true
+        },
+        "content": {
+            "github-branch": "staging"
+        },
+        "port": 4000
+    },
+    "database": {
+        "redis": {
+            "host": "",
+            "password": "",
+            "persist": true
+        }
+    },
+    "intervals": {
+        "pull": {
+            "currencies": 300000,
+            "histories": 43200000
+        },
+        "request": {
+            "histories": 1000
+        }
+    },
+    "limit": {
+        "currencies": 100
+    }
+}

@@ -54,10 +54,10 @@ module.exports = class DataManager {
         return setInterval(() => {
             const currencies = this.getCurrencies()
             console.log('Currencies updated: ', currencies.length)
-        }, Number(process.env.INTERVAL_PULL_CURRENCIES))
+        }, config.get('interval.pull.currencies'))
     }
 
     startIntervalHistories(metas) {
-        return setInterval(() => this.getHistories(metas), Number(process.env.INTERVAL_PULL_HISTORIES))
+        return setInterval(() => this.getHistories(metas), config.get('interval.pull.histories'))
     }
 }

@@ -1,6 +1,6 @@
 module.exports = class DataTransformer {
     metas(metas) {
-        return metas.slice(0, Number(process.env.LIMIT_CURRENCIES)).map(meta => ({
+        return metas.slice(0, config.get('limit.currencies')).map(meta => ({
             symbol: meta.symbol,
             name: meta.name,
             slug: meta.slug
@@ -36,7 +36,7 @@ module.exports = class DataTransformer {
     }
 
     currencies(currencies) {
-        return currencies.slice(0, Number(process.env.LIMIT_CURRENCIES)).map((currency) => {
+        return currencies.slice(0, config.get('limit.currencies')).map((currency) => {
             return {
                 id: currency.id,
                 name: currency.name,
