@@ -1,10 +1,10 @@
 {
     "application": {
         "ticker": {
-            "persist": true
+            "retrieve": true
         },
         "content": {
-            "github-branch": "staging"
+            "github-branch": ""
         },
         "port": 4000
     },
@@ -12,16 +12,20 @@
         "redis": {
             "host": "",
             "password": "",
-            "persist": true
+            "persist": false
         }
     },
-    "intervals": {
+    "interval": {
         "pull": {
-            "currencies": 300000,
-            "histories": 43200000
+            "currencies": 180000,
+            "histories": {
+                "daily": 43200000,
+                "hourly": 1800000,
+                "minutely": 60000
+            }
         },
         "request": {
-            "histories": 1000
+            "histories": 500
         }
     },
     "limit": {
