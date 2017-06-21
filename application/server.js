@@ -26,7 +26,7 @@ const controllers = require('./controllers')(database)
 const middleware = require('./middleware')(app)
 
 // Routes
-const routes = require('./routes')(app, database, controllers, dataManager)
+const routes = require('./routes')(app, database, controllers, dataManager, fileHandler)
 
 // Initialize application
 app.listen(config.get('application.port'), () => {
@@ -36,7 +36,10 @@ app.listen(config.get('application.port'), () => {
     if (config.get('application.ticker.retrieve') !== false) {
         dataManager.getCurrencies(async (currencies) => {
             // Retrieve initial price history data
-            dataManager.getHistories(currencies)
+            dataManager.getHistories(currencies, 'daily', (range) => {
+                if (range === 'daily') dataManager.calculateChangeMonth()
+            })
+            dataManager.getGlobalStatistics()
 
             // Initialize data refresh intervals
             dataManager.startIntervalCurrencies()

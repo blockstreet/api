@@ -6,6 +6,21 @@ module.exports = class DataService {
         this.transformer = dataTransformer
     }
 
+    async getGlobalStatistics() {
+        let result
+
+        try {
+            result = await axios.get('https://files.coinmarketcap.com/generated/stats/global.json')
+        } catch (error) {
+            throw new Error('Failed to make global statistics request to provider: ', error)
+        }
+
+        return {
+            market_cap: result.total_market_cap_by_available_supply_usd,
+            volume: result.total_volume_usd
+        }
+    }
+
     async getCurrencies() {
         let result
 
@@ -29,7 +44,7 @@ module.exports = class DataService {
         return Promise.each(
             metas.map((meta, index) => {
                 return new Promise((resolve) => {
-                    setTimeout(() => {
+                    return setTimeout(() => {
                         return resolve(axios.get(this.transformer.uriPath(meta.symbol, range)))
                     }, (index * config.get('interval.request.histories')))
                 })

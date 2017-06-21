@@ -1,9 +1,10 @@
-module.exports = (app, database, controllers, dataManager) => {
+module.exports = (app, database, controllers, dataManager, fileHandler) => {
 
     // Default endpoint
     app.get('/api', (req, res) => res.send(200))
 
     // Endpoints related to retrieving data about a or multiple currencies
+    app.get('/api/statistics', async (req, res) => res.json(await database.get('statistics')))
     app.get('/api/currencies', async (req, res) => res.json(await database.getAll('currencies:*')))
     app.get('/api/currencies/:id', async (req, res) => res.json(await database.get(`currencies:${req.params.id.toLowerCase()}`)))
     app.get('/api/currencies/:id/history', controllers.getHistory)
@@ -42,7 +43,7 @@ module.exports = (app, database, controllers, dataManager) => {
         const file = (directories.length > 1 ? directories.pop() : directories[directories.length - 1])
         const subpath = (directories.length > 0 ? directories.join('/') : null)
 
-        try { result = await fileHandler(file, subpath, { query: req.query, branch: config.get('application.port') }) }
+        try { result = await fileHandler(file, subpath, { query: req.query, branch: config.get('application.content.github-branch') }) }
         catch (error) { console.error(error) }
 
         if (result.type === 'json') res.json(result.payload)

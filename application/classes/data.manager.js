@@ -10,6 +10,13 @@ module.exports = class DataManager {
         this.dataService = new DataService(this.dataTransformer)
     }
 
+    async getGlobalStatistics(callback) {
+        const statistics = await this.dataService.getGlobalStatistics()
+        this.database.set('statistics', statistics)
+
+        if (callback) callback(statistics)
+    }
+
     async getCurrencies(callback) {
         const currencies = await this.dataService.getCurrencies()
         currencies.forEach(async currency => await this.database.set(`currencies:${currency.id}`, currency))
@@ -18,46 +25,65 @@ module.exports = class DataManager {
         if (callback) callback(currencies)
     }
 
-    getHistories(metas, callback) {
-        if (!Array.isArray(metas)) return Error('Method getHistories received non Array argument: ', typeof metas)
+    getHistories(metas, range, callback) {
+        if (!Array.isArray(metas)) throw new Error('Method getHistories received non Array argument: ', typeof metas)
+        if (!['daily', 'hourly', 'minutely'].includes(range)) throw new Error(`Method getHistories received invalid range argument: ${range}`)
 
-        // const timestamps = database.get('timestamps').value()
-        const ranges = ['daily', 'hourly', 'minutely']
+        this.dataService.getHistories(metas, range, (history, meta, index) => {
+            this.database.set(`history:${range}:${meta.id}`, history)
+            console.log(`${index + 1} | ${range} | ${colors.cyan(meta.name)} has been persisted to cache`)
 
-        ranges.forEach((range) => {
-            this.dataService.getHistories(metas, range, (history, meta, index) => {
-                this.database.set(`history:${range}:${meta.id}`, history)
-                console.log(`${index + 1} | ${range} | ${colors.cyan(meta.name)} has been persisted to cache`)
-
-                if (index === metas.length - 1) {
-                    console.log('All price histories have been cached.')
-                    this.database.set(`timestamps:${range}`, moment().format())
-                }
-            })
+            if (index === metas.length - 1) {
+                console.log(`All ${range} price histories have been cached.`)
+                this.database.set(`timestamps:${range}`, moment().format())
+                if (callback) return callback(range)
+            }
         })
     }
 
-    calculateChangeMonth() {
-        const currencies = this.database.get('currencies').value()
-        const history = this.database.get('history:hourly').value()
+    async calculateChangeMonth() {
+        const currencies = await this.database.getAll('currencies:*')
 
-        currencies.forEach((currency) => {
-            if (!history[currency.id]) return
+        currencies.forEach(async (currency, index) => {
+            let history = await this.database.get(`history:daily:${currency.id}`)
 
-            const lastEntry = history[currency.id][history[currency.id].length - 1]
-            currency.percent_change_month = ((currency.price - lastEntry.close) / lastEntry.close) * 100
-            this.database.get('currencies').find({ id: currency.id }).set(currency).write()
+            if (!history || !history.length || history.length === 0) return console.error(`${index + 1} | changeMonth | Currency ${currency.name} has no price history.`)
+
+            history = history.filter(entry => entry.time >= moment().subtract(1, 'month').startOf('day').unix())
+            const lastMonth = history[0]
+
+            currency.percent_change_month = ((currency.price - lastMonth.close) / lastMonth.close) * 100
+            this.database.set(`currencies:${currency.id}`, currency)
+            console.log(`${index} | changeMonth | ${colors.cyan(currency.name)} has been calculated: ${lastMonth.close} -> ${currency.price} = ${currency.percent_change_month}`)
         })
     }
 
     startIntervalCurrencies() {
         return setInterval(() => {
-            const currencies = this.getCurrencies()
-            console.log('Currencies updated: ', currencies.length)
+            this.getCurrencies((currencies) => {
+                this.getGlobalStatistics()
+                this.calculateChangeMonth()
+
+                console.log('Currencies & their monthly change updated: ', currencies.length)
+            })
         }, config.get('interval.pull.currencies'))
     }
 
     startIntervalHistories(metas) {
-        return setInterval(() => this.getHistories(metas), config.get('interval.pull.histories'))
+        const ranges = [
+            { interval: 'daily',    increment: 'day' },
+            { interval: 'hourly',   increment: 'hour' },
+            { interval: 'minutely', increment: 'minute' }
+        ]
+
+        return ranges.map((range) => {
+            return setInterval(async () => {
+                const lastUpdated = moment(await this.database.get(`timestamps:histories:${range.interval}`))
+
+                if (lastUpdated.isBefore(moment().startOf(range.increment))) {
+                    return this.getHistories(metas, range.interval), config.get(`interval.pull.histories.${range.interval}`)
+                }
+            })
+        })
     }
 }
