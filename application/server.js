@@ -36,9 +36,14 @@ app.listen(config.get('application.port'), () => {
     if (config.get('application.ticker.retrieve') !== false) {
         dataManager.getCurrencies(async (currencies) => {
             // Retrieve initial price history data
-            dataManager.getHistories(currencies, 'daily', (range) => {
-                if (range === 'daily') dataManager.calculateChangeMonth()
+
+            const ranges = ['daily', 'hourly', 'minutely']
+            ranges.forEach(range => {
+                dataManager.getHistories(currencies, range, (range) => {
+                    if (range === 'daily') dataManager.calculateChangeMonth()
+                })
             })
+
             dataManager.getGlobalStatistics()
 
             // Initialize data refresh intervals

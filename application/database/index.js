@@ -4,7 +4,7 @@ module.exports = () => {
     const database = new Database()
 
     database.redis.on('error', (err) => {
-       console.log(`${colors('Error')} connecting to Redis: `, err)
+       console.log(`${colors.red('Error')} connecting to Redis: `, err)
     })
 
     database.redis.on('ready', () => {
