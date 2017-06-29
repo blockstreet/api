@@ -2,6 +2,7 @@ const request = require('request-promise')
 const showdown  = require('showdown')
 const converter = new showdown.Converter()
 converter.setFlavor('github')
+const axios = require('axios')
 
 module.exports = async (file, directory, options) => {
     // Check if the file has an extension
@@ -15,16 +16,13 @@ module.exports = async (file, directory, options) => {
     // Create the URI path for the request
     const fileUri = (directory ? `${directory}/${file}` : file)
 
-    console.log('fileURI: ', `https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`)
+    console.log('fileURI: ', `https://rawgit.com/blockstreet/content/${options.branch}/${fileUri}`)
 
     // If file type is JSON
     if (extension === 'json') {
         return {
             type: 'json',
-            payload: await request({
-                uri: `https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`,
-                json: true
-            })
+            payload: await axios.get(`https://rawgit.com/blockstreet/content/${options.branch}/${fileUri}`)
         }
     }
 
@@ -34,7 +32,7 @@ module.exports = async (file, directory, options) => {
 
         try {
             result = await request({
-                uri: `https://raw.githubusercontent.com/blockstreet/content/${options.branch}/${fileUri}`
+                uri: `https://rawgit.com/blockstreet/content/${options.branch}/${fileUri}`
             })
         } catch (error) {
             console.log('Failed to retrieve URI: ', error)
