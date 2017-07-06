@@ -1,13 +1,19 @@
-module.exports = {
-    history(histories) {
-        return histories.map((coin) => [
-            coin.time,
-            coin.close
-        ])
-    },
+const { Currency } = require('../../database').models
 
-    uriPath(symbol, range) {
-        symbol = String(symbol).toUpperCase()
+module.exports = {
+    history: (currency, intervals) => intervals.map(interval => ({
+        currency_id: currency.id,
+        time: interval.time,
+        close: interval.close,
+        high: interval.high,
+        low: interval.low,
+        open: interval.open,
+        volume_from: interval.volumefrom,
+        volume_to: interval.volumeto
+    })),
+
+    uri: (key, range) => {
+        key = String(key).toUpperCase()
 
         if (range === 'daily')
             return 'https://min-api.cryptocompare.com/data/histoday' +
@@ -16,14 +22,14 @@ module.exports = {
                 '&e=CCCAGG' +
                 '&tryConversion=true' +
                 '&tsym=USD' +
-                `&fsym=${symbol}`
+                `&fsym=${key}`
 
         if (range === 'hourly')
-            return `https://min-api.cryptocompare.com/data/histohour?aggregate=1&e=CCCAGG&tryConversion=true&tsym=USD&fsym=${symbol}&limit=730`
+            return `https://min-api.cryptocompare.com/data/histohour?aggregate=1&e=CCCAGG&tryConversion=true&tsym=USD&fsym=${key}&limit=730`
 
         if (range === 'minutely')
-            return `https://min-api.cryptocompare.com/data/histominute?aggregate=1&e=CCCAGG&tryConversion=true&tsym=USD&fsym=${symbol}`
+            return `https://min-api.cryptocompare.com/data/histominute?aggregate=1&e=CCCAGG&tryConversion=true&tsym=USD&fsym=${key}`
 
-        return Error('Method uriPath received bad argument(range)')
+        return Error('Method uri received bad argument(range)')
     }
 }

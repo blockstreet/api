@@ -9,7 +9,7 @@ const options = {
 }
 
 module.exports = {
-    async statistics() {
+    statistics: async () =>  {
         let result
 
         try {
@@ -25,7 +25,7 @@ module.exports = {
      * Retrieve top N currencies from coinmarketcap
      * @return {Promise}
      */
-    async currencies() {
+    currencies: async () => {
         let result
 
         try {

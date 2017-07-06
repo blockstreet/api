@@ -1,8 +1,8 @@
 module.exports = (Sequelize, DataTypes) =>
     Sequelize.define('Currency', {
         id: {
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
+            type: DataTypes.TEXT,
+            required: true,
             primaryKey: true
         },
         symbol: {

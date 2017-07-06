@@ -1,3 +1,5 @@
+const { PriceHistory } = require('../../database').models
+
 module.exports = {
     getHistories(metas, range, callback) {
         if (!Array.isArray(metas)) throw new Error('Method getHistories received non Array argument: ', typeof metas)
@@ -13,6 +15,10 @@ module.exports = {
                 if (callback) return callback(range)
             }
         })
+    },
+
+    commit: async (history) => {
+        return await PriceHistory.bulkCreate(history)
     },
 
 

@@ -1,5 +1,5 @@
 module.exports = (Sequelize, DataTypes) =>
-    Sequelize.define('Price', {
+    Sequelize.define('PriceHistory', {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
@@ -13,30 +13,32 @@ module.exports = (Sequelize, DataTypes) =>
                 key: 'id'
             }
         },
-        current: {
-            type: DataTypes.INTEGER,
-            allowNull: false
+        time: {
+            type: DataTypes.BIGINT
         },
-        change_hour: {
-            type: DataTypes.INTEGER
+        close: {
+            type: DataTypes.BIGINT
         },
-        change_day: {
-            type: DataTypes.INTEGER
+        high: {
+            type: DataTypes.BIGINT
         },
-        change_week: {
-            type: DataTypes.INTEGER
+        low: {
+            type: DataTypes.BIGINT
         },
-        change_month: {
-            type: DataTypes.INTEGER
+        open: {
+            type: DataTypes.BIGINT
         },
-        volume: {
-            type: DataTypes.INTEGER
+        volumeFrom: {
+            type: DataTypes.BIGINT
+        },
+        volumeTo: {
+            type: DataTypes.BIGINT
         }
     }, {
-        timestamps: true,
+        timestamps: false,
         paranoid: true,
         underscored: true,
-        tableName: 'Prices',
+        tableName: 'PriceHistories',
         classMethods: {
             associate: (models) => { }
         }

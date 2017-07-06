@@ -4,24 +4,22 @@ const axios = require('axios')
 
 // Configuration
 const options = {
-    api: 'http://api.coinmarketcap.com/v1'
+    api: 'https://min-api.cryptocompare.com/data'
 }
 
 module.exports = {
-    async getHistories(metas, range, callback) {
-        if (!metas) throw new Error('Method getHistories received no arguments.')
-        if (metas.length === 0) throw new Error('Method getHistories received no currency metas for retrieval.')
+    history: async (currency, range = 'daily') => {
+        let intervals
 
-        // Return array of promises
-        return Promise.each(
-            metas.map((meta, index) => {
-                return new Promise((resolve) => {
-                    return setTimeout(() => {
-                        return resolve(axios.get(this.transformer.uriPath(meta.symbol, range)))
-                    }, (index * config.get('interval.request.histories')))
-                })
-            }),
-            (response, index) => callback(response.Data, metas[index], index)
-        )
+        try {
+            intervals = (await axios.get(transformer.uri(currency.symbol, range))).Data
+        } catch (error) {
+            console.error(`Failed to retrieve ${currency.symbol} price history from cryptocompare: `, error)
+        }
+
+        if (intervals.length === 0) return console.error(`Received empty ${currency.symbol} price history array from cryptocompare: `, intervals.length)
+        if (!(intervals instanceof Array)) return console.error(`Data returned from cryptocompare not an Array: `, typeof intervals)
+
+        return transformer.history(currency, intervals)
     }
 }

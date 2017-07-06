@@ -2,7 +2,6 @@
 const helmet = require('helmet')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
-const logger = require('../services/logger')
 const responseTime = require('response-time')
 const cors = require('cors')
 const axios = require('axios')
@@ -13,7 +12,7 @@ module.exports = (app) => {
     app.use(cors({ maxAge: 84600 }))
 
     // Logging
-    app.use(morgan('common', { stream: { write: message => console.log(message) } }))
+    app.use(morgan('tiny', { stream: { write: message => console.log(message) } }))
     app.use(morgan('combined', { stream: { write: message => console.access(message) } }))
 
     // Security
