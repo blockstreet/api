@@ -1,8 +1,6 @@
 const Sequelize = require('sequelize')
 const models = require('./models')
 const seeder = require('./seeders')
-const chalk = require('chalk')
-const logger = require('../services/logger')
 const Promise = require('bluebird')
 
 module.exports = {
@@ -11,7 +9,7 @@ module.exports = {
      * @return {object} instantiated database objects
      */
     async connect() {
-        this.state.sequelize = new Sequelize(
+        this.postgres = new Sequelize(
             config.get('database.postgres.name'),
             config.get('database.postgres.user'),
             config.get('database.postgres.password'),
@@ -24,40 +22,40 @@ module.exports = {
         )
 
         const executions = [
-            logger.console.info(`${chalk.yellow('Importing')} models into database`),
-            logger.console.info('--------------------------------'),
-            await models(this.state),
-            logger.console.info('--------------------------------')
+            console.log(`${color.yellow('Importing')} models into database`),
+            console.log('--------------------------------'),
+            await models(this),
+            console.log('--------------------------------')
         ]
 
         if (this.state.doSync) {
             executions.push(
-                logger.console.info(`${(this.state.doSync ? chalk.red('Force syncing') : chalk.green('soft syncing'))} models to database`),
-                await this.state.sequelize.sync({ force: this.state.doSync })
-                    .then(() => logger.console.info(`Database sync was ${chalk.green('successful')}`))
-                    .catch(error => logger.console.info('Database sync failed: ', error)),
-                logger.console.info('--------------------------------')
+                console.log(`${(this.state.doSync ? color.red('Force syncing') : color.green('soft syncing'))} models to database`),
+                await this.postgres.sync({ force: this.state.doSync })
+                    .then(() => console.log(`Database sync was ${color.green('successful')}`))
+                    .catch(error => console.log('Database sync failed: ', error)),
+                console.log('--------------------------------')
             )
         }
 
         if (this.state.doSeed) {
             executions.push(
-                logger.console.info(`${chalk.red('De-seeding')} database`),
-                logger.console.info('--------------------------------'),
-                await seeder.down(this.state)
-                    .then(() => logger.console.info('--------------------------------'))
-                    .then(() => logger.console.info(`Database de-seed was ${chalk.green('successful')}`))
-                    .catch(error => logger.console.info('Database de-seed failed: ', error)),
-                logger.console.info('--------------------------------'),
+                console.log(`${color.red('De-seeding')} database`),
+                console.log('--------------------------------'),
+                await seeder.down(this)
+                    .then(() => console.log('--------------------------------'))
+                    .then(() => console.log(`Database de-seed was ${color.green('successful')}`))
+                    .catch(error => console.log('Database de-seed failed: ', error)),
+                console.log('--------------------------------'),
 
 
-                logger.console.info(`${chalk.red('Seeding')} database`),
-                logger.console.info('--------------------------------'),
-                await seeder.up(this.state)
-                    .then(() => logger.console.info('--------------------------------'))
-                    .then(() => logger.console.info(`Database seed was ${chalk.green('successful')}`))
-                    .catch(error => logger.console.info('Database seed failed: ', error)),
-                logger.console.info('--------------------------------')
+                console.log(`${color.red('Seeding')} database`),
+                console.log('--------------------------------'),
+                await seeder.up(this)
+                    .then(() => console.log('--------------------------------'))
+                    .then(() => console.log(`Database seed was ${color.green('successful')}`))
+                    .catch(error => console.log('Database seed failed: ', error)),
+                console.log('--------------------------------')
             )
         }
 
@@ -70,9 +68,6 @@ module.exports = {
      * @type {Object}
      */
     state: {
-        sequelize: null,
-        models: null,
-
         /**
          * When we force sync, the database rebuilds all of it's tables (models)
          * as well as their associations. Any schema changes as well as data
@@ -98,11 +93,14 @@ module.exports = {
         )
     },
 
+    postgres: null,
+    models: null,
+
 
     /**
      * Terminates the connection to both databases
      */
     disconnect() {
-        if (this.state.sequelize !== null) this.state.sequelize = null
+        if (this.postgres !== null) this.postgres = null
     }
 }

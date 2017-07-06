@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const logger = require('../services/logger')
 const responseTime = require('response-time')
 const cors = require('cors')
+const axios = require('axios')
 
 module.exports = (app) => {
     app.use(bodyParser.json())
@@ -12,8 +13,8 @@ module.exports = (app) => {
     app.use(cors({ maxAge: 84600 }))
 
     // Logging
-    app.use(morgan('dev', { stream: { write: message => logger.console.info(message) } }))
-    app.use(morgan('tiny', { stream: { write: message => logger.access.info(message) } }))
+    app.use(morgan('common', { stream: { write: message => console.log(message) } }))
+    app.use(morgan('combined', { stream: { write: message => console.access(message) } }))
 
     // Security
     app.use(helmet())
@@ -29,4 +30,6 @@ module.exports = (app) => {
         response.header('Access-Control-Max-Age', 86400)
         next()
     })
+
+    axios.interceptors.response.use(response => response.data, error => Promise.reject(error))
 }

@@ -4,7 +4,7 @@ const chalk = require('chalk')
 
 module.exports = (database) => {
     // Load in database models
-    database.models = simport(__dirname, database.sequelize, {
+    database.models = simport(__dirname, database.postgres, {
         exclude: ['index.js']
     })
 

@@ -1,7 +1,5 @@
 const Promise = require('bluebird')
 const fs = require('fs')
-const chalk = require('chalk')
-const logger = require('../../services/logger')
 
 // Accumulate seed files
 const seeders = (() => fs.readdirSync(__dirname)
@@ -30,9 +28,9 @@ const seeders = (() => fs.readdirSync(__dirname)
 module.exports = {
     up: database => Promise.each(seeders,
         (seeder) => {
-            logger.console.info(`${chalk.magenta(seeder.name)} ${seeder.spaces}    model seeded`)
+            console.log(`${color.magenta(seeder.name)} ${seeder.spaces}    model seeded`)
             return seeder.execute.up(database.sequelize, database.models)
-                .catch(error => logger.console.info(`${chalk.red(seeder.name)} failed to seed: `, error))
+                .catch(error => console.error(`${color.red(seeder.name)} failed to seed: `, error))
         }, {
             concurrency: 1
         }
@@ -40,9 +38,9 @@ module.exports = {
 
     down: database => Promise.each(seeders,
         (seeder) => {
-            logger.console.info(`${chalk.yellow(seeder.name)} ${seeder.spaces} model de-seeded`)
+            console.log(`${color.yellow(seeder.name)} ${seeder.spaces} model de-seeded`)
             return seeder.execute.down(database.sequelize, database.models)
-                .catch(error => logger.console.info(`${chalk.red(seeder.name)} failed to de-seed: `, error))
+                .catch(error => console.error(`${color.red(seeder.name)} failed to de-seed: `, error))
         }, {
             concurrency: 1
         }
