@@ -1,0 +1,7 @@
+[{
+    "id": "b374dc53-102a-3ffe-b2ca-a3c0d64940df",
+    "user_id": "00000000-0000-0000-0000-000000000000",
+    "device_type": "desktop",
+    "payload": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkub25lbGluay5jb20iLCJzdWIiOiJhcGlfdXNlciIsImF1ZCI6Im5vYy5vbmVsaW5rLmNvbSIsImlkIjoiNjk2NjI1YTEtN2QyYi00NWU2LTg5ZDYtMTQ0YjE2Y2UwNTlkIiwidXNlcl9pZCI6IjQ0NDQ0NDQ0LTQ0NDQtNDQ0NC00NDQ0LTQ0NDQ0NDQ0NDQ0NCIsInZlcmlmaWVkIjp0cnVlLCJ1c2VyX2lwIjoiMTI3LjAuMC4xIiwiaWF0IjoxNDg5NjEwNTg3LCJleHAiOjE0ODk2OTY5ODd9.-uw6xd6dGVyagtEL-cY_WzXTQ5ZmKmqNE41X_hfa7fM",
+    "strategy": "jwt"
+}]
