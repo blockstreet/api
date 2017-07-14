@@ -1,4 +1,5 @@
-const { Currency } = require('../database').models
+const moment = require('moment')
+const { Currency, Timestamp } = require('../database').models
 const services = require('../services')
 const actions = require('../actions')
 
@@ -18,11 +19,19 @@ module.exports = {
      * @return {Promise} [description]
      */
     getCollection: async (request, response) => {
-        const currencies = await services.coinmarketcap.fetch.currencies()
-        const result = await actions.currencies.commit(currencies)
+        let timestamp = Timestamp.findOne({ where: { source: 'currencies' }})
+        let currencies
 
-        if (!result || result.length === 0) console.error('Failed to persist to database:', result)
-        return response.json(result)
+        if (!timestamp || moment.duration(moment().diff(moment(timestamp))).asSeconds() >= 60 * 2.5) {
+            const data = await services.coinmarketcap.fetch.currencies()
+            { currencies, timestamp } = await actions.currencies.commit(data)
+        } else {
+            console.log('Pull from database')
+            currencies = await Currency.findAll()
+        }
+
+        if (!currencies || currencies.length === 0) console.error('Failed to persist to database:', currencies)
+        return response.json(currencies)
     },
 
 
@@ -32,10 +41,10 @@ module.exports = {
         try {
             currency = await Currency.findOne({ where: { id: request.params.id }})
         } catch (error) {
-            console.error(`Failed to associate a currency with the provided id: `, request.params.id)
+            console.error(`Failed to associate a currency with the provided id in the database: `, request.params.id)
         }
 
-        if (!currency) return response.json({ error: `Failed to associate a currency with the provided id: ${request.params.id}` })
+        if (!currency) return console.error(`Invalid data returned from database:`, currency)
 
         const history = await services.cryptocompare.fetch.history(currency, request.query.interval)
         const result = await actions.history.commit(history)

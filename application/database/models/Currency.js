@@ -13,6 +13,13 @@ module.exports = (Sequelize, DataTypes) =>
         },
         supply: {
             type: DataTypes.BIGINT
+        },
+        updated_history_at: {
+            type: DataTypes.DATE
+        },
+        updated_price_at: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW
         }
     }, {
         timestamps: true,
