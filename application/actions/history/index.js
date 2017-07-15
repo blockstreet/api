@@ -2,22 +2,6 @@ import { influx } from '../../database'
 import moment from 'moment'
 
 module.exports = {
-    getHistories(metas, range, callback) {
-        if (!Array.isArray(metas)) throw new Error('Method getHistories received non Array argument: ', typeof metas)
-        if (!['daily', 'hourly', 'minutely'].includes(range)) throw new Error(`Method getHistories received invalid range argument: ${range}`)
-
-        this.dataService.getHistories(metas, range, (history, meta, index) => {
-            this.database.set(`history:${range}:${meta.id}`, history)
-            console.log(`${index + 1} | ${range} | ${colors.cyan(meta.name)} has been persisted to cache`)
-
-            if (index === metas.length - 1) {
-                console.log(`All ${range} price histories have been cached.`)
-                this.database.set(`timestamps:${range}`, moment().format())
-                if (callback) return callback(range)
-            }
-        })
-    },
-
     /**
      * This method persists price history to the InfluxDB instance for storage.
      *

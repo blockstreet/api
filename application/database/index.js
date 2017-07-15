@@ -2,7 +2,7 @@ import Sequelize from 'sequelize'
 import { InfluxDB, FieldType } from 'influx'
 import models from './models'
 import Promise from 'bluebird'
-const seeder = require('./seeders')
+import seeder from './seeders'
 
 module.exports = {
     /**
@@ -10,22 +10,33 @@ module.exports = {
      * @return {object} instantiated database objects
      */
     async connect() {
+        this.sync = (
+            environment.get('database.force') === true &&
+            environment.get('environment') === 'development'
+        )
+
+        this.seed = (
+            environment.get('database.force') === true &&
+            environment.get('database.seed') === true &&
+            environment.get('environment') === 'development'
+        )
+
         this.postgres = new Sequelize(
-            config.get('database.postgres.name'),
-            config.get('database.postgres.user'),
-            config.get('database.postgres.password'),
+            environment.get('database.postgres.name'),
+            environment.get('database.postgres.user'),
+            environment.get('database.postgres.password'),
             {
-                host: config.get('database.postgres.host'),
-                dialect: config.get('database.postgres.type'),
-                port: config.get('database.postgres.port'),
+                host: environment.get('database.postgres.host'),
+                dialect: environment.get('database.postgres.type'),
+                port: environment.get('database.postgres.port'),
                 logging: false
             }
         )
 
         this.influx = new InfluxDB({
-            host: config.get('database.influx.host'),
-            database: config.get('database.influx.database'),
-            schema: config.get('database.influx.schema').map((entry) => {
+            host: environment.get('database.influx.host'),
+            database: environment.get('database.influx.database'),
+            schema: environment.get('database.influx.schema').map((entry) => {
                 for (const key in entry.fields) entry.fields[key] = FieldType[key]
                 return entry
             })
@@ -34,21 +45,21 @@ module.exports = {
         const executions = [
             console.log(`${color.yellow('Importing')} models into Postgres database`),
             console.log('--------------------------------'),
-            await models.import(this.postgres),
+            this.models = await models.import(this.postgres),
             console.log('--------------------------------')
         ]
 
-        if (this.doSync) {
+        if (this.sync) {
             executions.push(
-                console.log(`${(this.doSync ? color.red('Force syncing') : color.green('soft syncing'))} models to Postgres database`),
-                await this.postgres.sync({ force: this.doSync })
+                console.log(`${(this.sync ? color.red('Force syncing') : color.green('soft syncing'))} models to Postgres database`),
+                await this.postgres.sync({ force: this.sync })
                     .then(() => console.log(`Postgres database sync was ${color.green('successful')}`))
                     .catch(error => console.log('Postgres database sync failed: ', error)),
                 console.log('--------------------------------')
             )
         }
 
-        if (this.doSeed) {
+        if (this.seed) {
             executions.push(
                 console.log(`${color.red('De-seeding')} Postgres database`),
                 console.log('--------------------------------'),
@@ -75,19 +86,19 @@ module.exports = {
         executions.push(
             await this.influx.getDatabaseNames()
                 .then((names) => {
-                    if (names.includes(config.get('database.influx.database'))) {
-                        if (this.doSync) {
-                            return this.influx.dropDatabase(config.get('database.influx.database')).then(() => {
+                    if (names.includes(environment.get('database.influx.database'))) {
+                        if (this.sync) {
+                            return this.influx.dropDatabase(environment.get('database.influx.database')).then(() => {
                                 console.log(`Existing Influx database has been ${color.red('dropped')}`)
 
-                                return this.influx.createDatabase(config.get('database.influx.database')).then((result) => {
+                                return this.influx.createDatabase(environment.get('database.influx.database')).then((result) => {
                                     console.log(`New Influx database creation ${color.green('successful')}`)
                                 })
                             })
                         }
                     } else {
-                        console.log(`Specified Influx database ${color.yellow(config.get('database.influx.database'))} does not exist, creating...`)
-                        return this.influx.createDatabase(config.get('database.influx.database')).then((result) => {
+                        console.log(`Specified Influx database ${color.yellow(environment.get('database.influx.database'))} does not exist, creating...`)
+                        return this.influx.createDatabase(environment.get('database.influx.database')).then((result) => {
                             console.log(`New Influx database creation ${color.green('successful')}`)
                         })
                     }
@@ -100,16 +111,15 @@ module.exports = {
         return Promise.each(executions, () => { }, { concurrency: 1 })
     },
 
+
     /**
      * When we force sync, the database rebuilds all of it's tables (models)
      * as well as their associations. Any schema changes as well as data
      * inserted into the database is lost when this is done. This should
      * only ever be done in a development environment.
      */
-    doSync: (
-        config.get('database.force') === true &&
-        config.get('environment') === 'development'
-    ),
+    sync: null,
+
 
     /**
      * When we seed the database, we are inserting demonstration data that
@@ -118,24 +128,25 @@ module.exports = {
      * otherwise there will be injection collisions on the data. This is
      * intended to be run in a development environment, not on production.
      */
-    doSeed: (
-        config.get('database.force') === true &&
-        config.get('database.seed') === true &&
-        config.get('environment') === 'development'
-    ),
+    seed: null,
+
 
     /**
      * The Postgres database client
-     * @type {[type]}
      */
     postgres: null,
 
 
     /**
      * The InfluxDB database client
-     * @type {[type]}
      */
     influx: null,
+
+
+    /**
+     * Database tables represented as JavaScript objects
+     */
+    models: null,
 
 
     /**

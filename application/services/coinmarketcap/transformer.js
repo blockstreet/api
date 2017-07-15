@@ -10,7 +10,7 @@ module.exports = {
             name: currency.name,
             symbol: String(currency.symbol).toLowerCase()
         })),
-        states: currencies.map(currency => ({
+        prices: currencies.map(currency => ({
             currency_id: currency.id,
             current: Number(currency.price_usd),
             market_cap: Number(currency.market_cap_usd),

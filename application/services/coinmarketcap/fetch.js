@@ -30,12 +30,12 @@ module.exports = {
         let result
 
         try {
-            result = await coinmarketcap.ticker({ limit: config.get('limit.currencies'), convert: 'usd' })
+            result = await coinmarketcap.ticker({ limit: environment.get('limit.currencies'), convert: 'usd' })
         } catch (error) {
             throw new Error('Failed to make request to provider: ', error)
         }
 
-        if (!result.length) throw new Error('Request to provider did not return data of type Array: ', result)
+        if (!result || !result.length) throw new Error('Request to provider did not return data of type Array: ', result)
         if (result instanceof Array && result.length === 0) throw new Error('Request to provider returned an empty Array: ', result)
 
         return transformer.currencies(result)

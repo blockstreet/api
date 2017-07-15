@@ -1,5 +1,5 @@
 const moment = require('moment')
-import { Currency, Timestamp, Price } from '../database/models'
+const { Currency, Timestamp, Price } = require('../database').models
 const services = require('../services')
 const actions = require('../actions')
 

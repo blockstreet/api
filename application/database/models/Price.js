@@ -1,3 +1,5 @@
+import { baseModel } from '../models'
+
 module.exports = (Sequelize, DataTypes) => {
     const Model = Sequelize.define('Price', {
         currency_id: {
@@ -46,6 +48,9 @@ module.exports = (Sequelize, DataTypes) => {
     Model.associate = (models) => {
 
     }
+
+    Model.hasPrimaryKey = baseModel.hasPrimaryKey
+    Model.bulkUpsert = baseModel.bulkUpsert
 
     return Model
 }
