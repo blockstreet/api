@@ -8,8 +8,5 @@ module.exports = (Sequelize, DataTypes) =>
         timestamps: true,
         paranoid: true,
         underscored: true,
-        tableName: 'Timestamps',
-        classMethods: {
-            associate: (models) => { }
-        }
+        tableName: 'Timestamps'
     })

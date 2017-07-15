@@ -1,16 +1,18 @@
 const simport = require('sequelize-import')
-const logger = require('../../services/logger')
-const chalk = require('chalk')
 
-module.exports = (database) => {
-    // Load in database models
-    database.models = simport(__dirname, database.postgres, {
-        exclude: ['index.js']
-    })
+export default {
+    import(database) {
+        // Import database models from current directory using simport
+        this.models = database.models = simport(__dirname, database, { exclude: ['index.js'] })
 
-    Object.keys(database.models).forEach((modelName) => {
-        if ('associate' in database.models[modelName]) {
-            database.models[modelName].associate(database.models)
+        let counter = 0
+
+        // Build relations between models
+        Object.keys(this.models).forEach((modelName) => {
+            if ('associate' in this.models[modelName]) {
+                this.models[modelName].associate(this.models)
+                counter++
+            }
 
             // Spacing trick for console output
             let spaces = ''
@@ -19,7 +21,18 @@ module.exports = (database) => {
                 spaces = spaces.concat(' ')
             }
 
-            logger.console.info(`${chalk.yellow(modelName)} ${spaces} model imported`)
-        }
-    })
+            console.log(`${color.yellow(modelName)} ${spaces} model imported`)
+        })
+
+        console.log('--------------------------------')
+        console.log(`Built relations between ${color.yellow(counter)} models`)
+
+        return this.models
+    },
+
+    /**
+     * Database tables represented as JavaScript objects
+     * @type {Array}
+     */
+    models: null
 }

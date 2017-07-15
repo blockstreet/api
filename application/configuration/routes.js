@@ -8,7 +8,6 @@ module.exports = (application) => {
 
     // Currencies
     application.route('/currencies').get(controllers.currencies.getCollection)
-    application.route('/currencies/:id').get(controllers.currencies.getSingleton)
     application.route('/currencies/:id/history').get(controllers.currencies.getSingletonHistory)
 
     // Statistics

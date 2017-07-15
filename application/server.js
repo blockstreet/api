@@ -1,3 +1,6 @@
+// Deprecation warnings drive me crazy
+process.noDeprecation = true
+
 // External dependencies
 import express from 'express'
 import http from 'http'
@@ -39,4 +42,4 @@ database.connect().then(() => {
     })
 }).catch((error) => console.error(`${color.red('Failed')} to sync to the database.`, error))
 
-module.exports = server
+export default server

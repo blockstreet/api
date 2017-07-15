@@ -1,4 +1,5 @@
-const { PriceHistory } = require('../../database').models
+import { influx } from '../../database'
+import moment from 'moment'
 
 module.exports = {
     getHistories(metas, range, callback) {
@@ -17,8 +18,46 @@ module.exports = {
         })
     },
 
-    commit: async (history) => {
-        return await PriceHistory.bulkCreate(history)
+    /**
+     * This method persists price history to the InfluxDB instance for storage.
+     *
+     * @param  {Object}     currency    Sequelize database object that was matched to the requested currency
+     * @param  {Array}      history     Price history of requested currency retrieved from provider
+     * @return {Array}                  Database stored price history after conversion
+     */
+    commit: async (currency, history) => {
+        let result
+
+        try {
+            result = await influx.writePoints(history.map(entry => ({
+                measurement: 'price_history',
+                timestamp: moment(entry.time * 1000).toDate(),
+                tags: {
+                    currency_id: entry.currency_id
+                },
+                fields: {
+                    open: entry.open,
+                    close: entry.close,
+                    high: entry.high,
+                    low: entry.low,
+                    volume_from: entry.volume_from,
+                    volume_to: entry.volume_to
+                }
+            }))).then(async () => {
+                // Keep track of when the currency was updated for future pulls
+                currency.updated_history_at = moment().format()
+                return await currency.save().then(async (what) => {
+                    return await influx.query(`
+                        select * from price_history
+                        order by time desc
+                    `)
+                })
+            })
+        } catch (error) {
+            console.error(`Error saving data to InfluxDB! ${error.stack}`)
+        }
+
+        return result
     },
 
 

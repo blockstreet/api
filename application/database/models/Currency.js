@@ -1,5 +1,5 @@
-module.exports = (Sequelize, DataTypes) =>
-    Sequelize.define('Currency', {
+module.exports = (Sequelize, DataTypes) => {
+    const Model = Sequelize.define('Currency', {
         id: {
             type: DataTypes.TEXT,
             required: true,
@@ -11,22 +11,26 @@ module.exports = (Sequelize, DataTypes) =>
         name: {
             type: DataTypes.TEXT
         },
-        supply: {
-            type: DataTypes.BIGINT
-        },
-        updated_history_at: {
-            type: DataTypes.DATE
-        },
-        updated_price_at: {
+        price_updated_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
+        },
+        history_updated_at: {
+            type: DataTypes.DATE
         }
     }, {
         timestamps: true,
         paranoid: true,
         underscored: true,
-        tableName: 'Currencies',
-        classMethods: {
-            associate: (models) => { }
-        }
+        tableName: 'Currencies'
     })
+
+    Model.associate = (models) => {
+        models.Currency.hasOne(models.Price, {
+            as: 'price',
+            foreignKey: 'currency_id'
+        })
+    }
+
+    return Model
+}

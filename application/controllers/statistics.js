@@ -1,4 +1,3 @@
-const database = require('../database').state
 const services = require('../services')
 
 module.exports = {

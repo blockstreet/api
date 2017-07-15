@@ -1,39 +1,28 @@
 const moment = require('moment')
-const { Currency, Timestamp } = require('../database').models
+import { Currency, Timestamp, Price } from '../database/models'
 const services = require('../services')
 const actions = require('../actions')
 
 module.exports = {
     /**
-     * Gets the singleton
-     * @param  {[value]}  id [unique identifier]
-     * @return {Promise}    [description]
-     */
-    getSingleton: async (request, response) => {
-
-    },
-
-
-    /**
      * Gets the collection
      * @return {Promise} [description]
      */
     getCollection: async (request, response) => {
-        let timestamp = Timestamp.findOne({ where: { source: 'currencies' }})
-        let currencies
+        const timestamp = await Timestamp.findOne({ where: { source: 'currencies' }})
+        let ticker
 
-        if (!timestamp || moment.duration(moment().diff(moment(timestamp))).asSeconds() >= 60 * 2.5) {
-            const data = await services.coinmarketcap.fetch.currencies()
-            const result = await actions.currencies.commit(data)
-            currencies = result.currencies
-            timestamp = result.timestamp
+        console.log('Timestamp: ', timestamp ? timestamp.toJSON() : null)
+
+        if (timestamp) {
+            ticker = await Currency.findAll({ include: { model: Price, as: 'price' } })
         } else {
-            console.log('Pull from database')
-            currencies = await Currency.findAll()
+            const { metadata, states } = await services.coinmarketcap.fetch.currencies()
+            ticker = await actions.currencies.commit(metadata, states)
         }
 
-        if (!currencies || currencies.length === 0) console.error('Failed to persist to database:', currencies)
-        return response.json(currencies)
+        if (!ticker || ticker.length === 0) console.error('Failed to persist currencies to database:', ticker)
+        return response.json(ticker)
     },
 
 
@@ -49,9 +38,7 @@ module.exports = {
         if (!currency) return console.error(`Invalid data returned from database:`, currency)
 
         const history = await services.cryptocompare.fetch.history(currency, request.query.interval)
-        console.time('nice')
-        const result = await actions.history.commit(history)
-        console.timeEnd('nice')
+        const result = await actions.history.commit(currency, history)
 
         return response.json(result)
     }

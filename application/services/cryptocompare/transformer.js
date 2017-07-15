@@ -1,4 +1,4 @@
-const { Currency } = require('../../database').models
+import { Currency } from '../../database/models'
 
 module.exports = {
     history: (currency, intervals) => intervals.map(interval => ({
