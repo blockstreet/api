@@ -1,6 +1,7 @@
 const transformer = require('./transformer')
 const Promise = require('bluebird')
 const axios = require('axios')
+const coinmarketcap = require('coinmarketcap')
 
 // Configuration
 const options = {
@@ -29,7 +30,7 @@ module.exports = {
         let result
 
         try {
-            result = await axios.get(`${options.api}/ticker/?convert=USD`)
+            result = await coinmarketcap.ticker({ limit: config.get('limit.currencies'), convert: 'usd' })
         } catch (error) {
             throw new Error('Failed to make request to provider: ', error)
         }

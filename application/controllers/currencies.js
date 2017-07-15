@@ -24,7 +24,9 @@ module.exports = {
 
         if (!timestamp || moment.duration(moment().diff(moment(timestamp))).asSeconds() >= 60 * 2.5) {
             const data = await services.coinmarketcap.fetch.currencies()
-            { currencies, timestamp } = await actions.currencies.commit(data)
+            const result = await actions.currencies.commit(data)
+            currencies = result.currencies
+            timestamp = result.timestamp
         } else {
             console.log('Pull from database')
             currencies = await Currency.findAll()
@@ -47,7 +49,9 @@ module.exports = {
         if (!currency) return console.error(`Invalid data returned from database:`, currency)
 
         const history = await services.cryptocompare.fetch.history(currency, request.query.interval)
+        console.time('nice')
         const result = await actions.history.commit(history)
+        console.timeEnd('nice')
 
         return response.json(result)
     }

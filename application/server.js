@@ -1,7 +1,7 @@
 // External dependencies
-const express = require('express')
-const http = require('http')
-const logger = require('./services/logger')
+import express from 'express'
+import http from 'http'
+import logger from './services/logger'
 
 // Console log override
 console.log = logger.console.info
@@ -12,6 +12,7 @@ console.access = logger.access.info
 // Environment
 global.config = require('config')
 global.color = require('chalk')
+global.fetch = require('node-fetch')
 
 // Configuration
 const database = require('./database')
