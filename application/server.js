@@ -26,12 +26,13 @@ const server = http.createServer(application)
 
 // Initialize application
 database.connect().then(() => {
-    const configuration = require('./configuration')
+    const middleware = require('./middleware')
+    const routes = require('./routes')
     const collector = require('./services/collectors')
 
     // Bootstrapping
-    configuration.middleware(application)
-    configuration.routes(application)
+    middleware(application)
+    routes(application)
 
     // Execute server
     application.listen(environment.get('application.port'), () => {

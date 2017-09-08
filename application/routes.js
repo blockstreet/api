@@ -1,6 +1,6 @@
-const controllers = require('../controllers')
-const services = require('../services')
-const actions = require('../actions')
+const controllers = require('./controllers')
+const services = require('./services')
+const actions = require('./actions')
 
 module.exports = (application) => {
     // Landing

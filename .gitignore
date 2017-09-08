@@ -6,4 +6,4 @@ config/development.json
 config/local.json
 config/production.json
 config/staging.json
-logs/*
+logs/*.log
