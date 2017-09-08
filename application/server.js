@@ -1,5 +1,7 @@
 // Deprecation warnings drive me crazy
+// Set the directory node-config checks for env variables
 process.noDeprecation = true
+process.env.NODE_CONFIG_DIR = './configuration'
 
 // External dependencies
 import express from 'express'
@@ -24,26 +26,41 @@ const database = require('./database')
 const application = express()
 const server = http.createServer(application)
 
+// Verify that the environment variables have been set
+try {
+    console.log(`API process starting in ${color.yellow(environment.get('environment'))} mode...`)
+} catch (error) {
+    console.warn(
+        `${color.red('ATTENTION')}: Environment variables need to be set in ` +
+        `${color.red('./configuration')} for the ${color.yellow(process.env.NODE_ENV)} environment.`
+    )
+    process.exit(1)
+}
+
 // Initialize application
-database.connect().then(() => {
-    const middleware = require('./middleware')
-    const routes = require('./routes')
-    const collector = require('./services/collectors')
+try {
+    database.connect().then(() => {
+        const middleware = require('./middleware')
+        const routes = require('./routes')
+        const collector = require('./services/collectors')
 
-    // Bootstrapping
-    middleware(application)
-    routes(application)
+        // Bootstrapping
+        middleware(application)
+        routes(application)
 
-    // Execute server
-    application.listen(environment.get('application.port'), () => {
-        console.log(`Application is listening on port ${color.yellow(environment.get('application.port'))}!`)
+        // Execute server
+        application.listen(environment.get('application.port'), () => {
+            console.log(`Application is listening on port ${color.yellow(environment.get('application.port'))}!`)
 
-        collector.start()
-    }).on('error', (error) => {
-        if (error.code === 'EADDRINUSE') {
-            console.log(color.red(`Port ${environment.get('application.port')} is in use. Is the server already running?`))
-        }
+            collector.start()
+        }).on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                console.log(color.red(`Port ${environment.get('application.port')} is in use. Is the server already running?`))
+            }
+        })
     })
-})
+} catch (error) {
+    console.error(`There was an error connecting to the database:`, error)
+}
 
 export default server
