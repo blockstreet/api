@@ -22,21 +22,21 @@ module.exports = {
         )
 
         this.postgres = new Sequelize(
-            environment.get('database.postgres.name'),
+            environment.get('database.postgres.database'),
             environment.get('database.postgres.user'),
             environment.get('database.postgres.password'),
             {
                 host: environment.get('database.postgres.host'),
-                dialect: environment.get('database.postgres.type'),
+                dialect: 'postgres',
                 port: environment.get('database.postgres.port'),
                 logging: false
             }
         )
 
         this.influx = new InfluxDB({
-            host: environment.get('database.influx.host'),
-            database: environment.get('database.influx.database'),
-            schema: environment.get('database.influx.schema').map((entry) => {
+            host: environment.get('database.influxdb.host'),
+            database: environment.get('database.influxdb.database'),
+            schema: environment.get('database.influxdb.schema').map((entry) => {
                 for (const key in entry.fields) entry.fields[key] = FieldType[key]
                 return entry
             })
@@ -86,19 +86,19 @@ module.exports = {
         executions.push(
             await this.influx.getDatabaseNames()
                 .then((names) => {
-                    if (names.includes(environment.get('database.influx.database'))) {
+                    if (names.includes(environment.get('database.influxdb.database'))) {
                         if (this.sync) {
-                            return this.influx.dropDatabase(environment.get('database.influx.database')).then(() => {
+                            return this.influx.dropDatabase(environment.get('database.influxdb.database')).then(() => {
                                 console.log(`Existing Influx database has been ${color.red('dropped')}`)
 
-                                return this.influx.createDatabase(environment.get('database.influx.database')).then((result) => {
+                                return this.influx.createDatabase(environment.get('database.influxdb.database')).then((result) => {
                                     console.log(`New Influx database creation ${color.green('successful')}`)
                                 })
                             })
                         }
                     } else {
-                        console.log(`Specified Influx database ${color.yellow(environment.get('database.influx.database'))} does not exist, creating...`)
-                        return this.influx.createDatabase(environment.get('database.influx.database')).then((result) => {
+                        console.log(`Specified Influx database ${color.yellow(environment.get('database.influxdb.database'))} does not exist, creating...`)
+                        return this.influx.createDatabase(environment.get('database.influxdb.database')).then((result) => {
                             console.log(`New Influx database creation ${color.green('successful')}`)
                         })
                     }

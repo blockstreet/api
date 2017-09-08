@@ -44,6 +44,6 @@ database.connect().then(() => {
             console.log(color.red(`Port ${environment.get('application.port')} is in use. Is the server already running?`))
         }
     })
-}).catch((error) => console.error(`${color.red('Failed')} to sync to the database.`, error))
+})
 
 export default server

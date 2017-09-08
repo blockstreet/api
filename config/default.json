@@ -10,10 +10,30 @@
         "port": 4000
     },
     "database": {
-        "redis": {
-            "host": "",
-            "password": "",
-            "persist": false
+        "postgres": {
+            "database": "blockstreet",
+            "user": "posty",
+            "password": "posty",
+            "host": "docker.blockstreet.io",
+            "port": 5432
+        },
+        "influxdb": {
+            "host": "docker.blockstreet.io:8086",
+            "database": "blockstreet",
+            "schema": [{
+                "measurement": "price_history",
+                "fields": {
+                    "close": "INTEGER",
+                    "high": "INTEGER",
+                    "low": "INTEGER",
+                    "open": "INTEGER",
+                    "volume_from": "INTEGER",
+                    "volume_to": "INTEGER"
+                },
+                "tags": [
+                    "interval"
+                ]
+            }]
         },
         "force": true,
         "seed": true
