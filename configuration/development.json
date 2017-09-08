@@ -1,0 +1,57 @@
+{
+    "environment": "development",
+    "application": {
+        "ticker": {
+            "retrieve": true
+        },
+        "content": {
+            "github-branch": ""
+        },
+        "port": 4000
+    },
+    "database": {
+        "postgres": {
+            "database": "blockstreet",
+            "user": "posty",
+            "password": "posty",
+            "host": "docker.blockstreet.io",
+            "port": 5432
+        },
+        "influxdb": {
+            "host": "docker.blockstreet.io:8086",
+            "database": "blockstreet",
+            "schema": [{
+                "measurement": "price_history",
+                "fields": {
+                    "close": "INTEGER",
+                    "high": "INTEGER",
+                    "low": "INTEGER",
+                    "open": "INTEGER",
+                    "volume_from": "INTEGER",
+                    "volume_to": "INTEGER"
+                },
+                "tags": [
+                    "interval"
+                ]
+            }]
+        },
+        "force": true,
+        "seed": true
+    },
+    "interval": {
+        "pull": {
+            "currencies": 180000,
+            "histories": {
+                "daily": 43200000,
+                "hourly": 1800000,
+                "minutely": 60000
+            }
+        },
+        "request": {
+            "histories": 500
+        }
+    },
+    "limit": {
+        "currencies": 100
+    }
+}

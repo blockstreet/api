@@ -4,10 +4,11 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "babel-watch ./application/server.js",
-    "dev": "nodemon ./application/server.js",
-    "config": "node ./build/config.js"
+    "start": "set NODE_CONFIG_DIR=./configuration && babel-watch ./application/server.js",
+    "start:development": "set NODE_ENV=development&& npm run start",
+    "start:staging": "set NODE_ENV=staging&& npm run start",
+    "start:production": "set NODE_ENV=production&& npm run start",
+    "postinstall": "node ./build/config.js"
   },
   "author": "",
   "license": "ISC",

@@ -8,9 +8,11 @@ const configurations = [
     'staging.json'
 ]
 
+console.log('Running configuration file builder...')
+
 // Setup directory
-if (!fs.existsSync('./config')) {
-    fs.mkdirSync('./config')
+if (!fs.existsSync('./configuration')) {
+    fs.mkdirSync('./configuration')
     console.log('Created config directory')
 } else {
     console.log('Configuration directory already exists')
@@ -18,10 +20,13 @@ if (!fs.existsSync('./config')) {
 
 // Setup files
 configurations.forEach((file) => {
-    if (!fs.existsSync(`./config/${file}`)) {
-        fs.createReadStream('./config/default.json').pipe(fs.createWriteStream(`./config/${file}`))
-        console.log('Created configuration: ', file)
+    if (!fs.existsSync(`./configuration/${file}`)) {
+        fs.createReadStream('./configuration/default.json').pipe(fs.createWriteStream(`./configuration/${file}`))
+        console.log('Created configuration:', file)
     } else {
-        console.log('Configuration already exists: ', file)
+        console.log('Configuration already exists:', file)
     }
 })
+
+
+console.log('Configuration file builder complete')
