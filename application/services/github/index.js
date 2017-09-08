@@ -1,4 +1,3 @@
-const request = require('request-promise')
 const showdown  = require('showdown')
 const converter = new showdown.Converter()
 converter.setFlavor('github')
@@ -31,7 +30,7 @@ module.exports = async (file, directory, options) => {
         let result
 
         try {
-            result = await request({
+            result = await axios.get({
                 uri: `https://rawgit.com/blockstreet/content/${options.branch}/${fileUri}`
             })
         } catch (error) {

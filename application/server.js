@@ -1,56 +1,66 @@
+// Deprecation warnings drive me crazy
+// Set the directory node-config checks for env variables
+process.noDeprecation = true
+process.env.NODE_CONFIG_DIR = './configuration'
+
 // External dependencies
-const express = require('express')
-const Promise = require('bluebird')
-const axios = require('axios')
+import express from 'express'
+import http from 'http'
+import logger from './services/logger'
 
-// Environemnt & global variables
-global.config = require('config')
-global.colors = require('colors')
-axios.interceptors.response.use(response =>
-    response.data, error => Promise.reject(error)
-)
+// Console log override
+console.log = logger.console.info
+console.warn = logger.console.warn
+console.error = logger.error.error
+console.access = logger.access.info
 
-// Application dependencies
-const fileHandler = require('./classes/filehandler.class')
-const DataManager = require('./classes/data.manager')
+// Environment
+global.environment = require('config')
+global.color = require('chalk')
+global.fetch = require('node-fetch')
 
-// Application Instantation
-const app = express()
+// Configuration
+const database = require('./database')
 
-// Class instantiation
-const database = require('./database/index')()
-const dataManager = new DataManager(database)
-const controllers = require('./controllers')(database)
+// Instantation
+const application = express()
+const server = http.createServer(application)
 
-// Middleware
-const middleware = require('./middleware')(app)
-
-// Routes
-const routes = require('./routes')(app, database, controllers, dataManager, fileHandler)
+// Verify that the environment variables have been set
+try {
+    console.log(`API process starting in ${color.yellow(environment.get('environment'))} mode...`)
+} catch (error) {
+    console.warn(
+        `${color.red('ATTENTION')}: Environment variables need to be set in ` +
+        `${color.red('./configuration')} for the ${color.yellow(process.env.NODE_ENV)} environment.`
+    )
+    process.exit(1)
+}
 
 // Initialize application
-app.listen(config.get('application.port'), () => {
-    console.log(`Application is listening on port ${colors.yellow(config.get('application.port'))}!`)
+try {
+    database.connect().then(() => {
+        const middleware = require('./middleware')
+        const routes = require('./routes')
+        const collector = require('./services/collectors')
 
-    // Retrieve top N cryptocurrencies to cache
-    if (config.get('application.ticker.retrieve') !== false) {
-        dataManager.getCurrencies(async (currencies) => {
-            // Retrieve initial price history data
+        // Bootstrapping
+        middleware(application)
+        routes(application)
 
-            const ranges = ['daily', 'hourly', 'minutely']
-            ranges.forEach(range => {
-                dataManager.getHistories(currencies, range, (range) => {
-                    if (range === 'daily') dataManager.calculateChangeMonth()
-                })
-            })
+        // Execute server
+        application.listen(environment.get('application.port'), () => {
+            console.log(`Application is listening on port ${color.yellow(environment.get('application.port'))}!`)
 
-            dataManager.getGlobalStatistics()
-
-            // Initialize data refresh intervals
-            dataManager.startIntervalCurrencies()
-            dataManager.startIntervalHistories(currencies)
+            collector.start()
+        }).on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                console.log(color.red(`Port ${environment.get('application.port')} is in use. Is the server already running?`))
+            }
         })
-    } else {
-        console.log(`Persistence and retrieval of ticker data has been ${colors.red('disabled')}`)
-    }
-})
+    })
+} catch (error) {
+    console.error(`There was an error connecting to the database:`, error)
+}
+
+export default server
