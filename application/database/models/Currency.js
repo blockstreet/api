@@ -1,6 +1,6 @@
 import { baseModel } from '../models'
 
-module.exports = (Sequelize, DataTypes) => {
+export default (Sequelize, DataTypes) => {
     const Model = Sequelize.define('Currency', {
         id: {
             type: DataTypes.TEXT,

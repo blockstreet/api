@@ -1,10 +1,9 @@
-// Dependencies
-const helmet = require('helmet')
-const morgan = require('morgan')
-const bodyParser = require('body-parser')
-const responseTime = require('response-time')
-const cors = require('cors')
-const axios = require('axios')
+import helmet from 'helmet'
+import morgan from 'morgan'
+import bodyParser from 'body-parser'
+import responseTime from 'response-time'
+import cors from 'cors'
+import axios from 'axios'
 
 module.exports = (app) => {
     app.use(bodyParser.json())

@@ -1,7 +1,8 @@
-const showdown  = require('showdown')
+import showdown from 'showdown'
+import axios from 'axios'
+
 const converter = new showdown.Converter()
 converter.setFlavor('github')
-const axios = require('axios')
 
 module.exports = async (file, directory, options) => {
     // Check if the file has an extension

@@ -1,5 +1,9 @@
-module.exports = {
-    history: require('./history'),
-    currencies: require('./currencies'),
-    statistics: require('./statistics')
+import history from './history'
+import currencies from './currencies'
+import statistics from './statistics'
+
+export default {
+    history,
+    currencies,
+    statistics
 }

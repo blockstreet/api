@@ -1,7 +1,13 @@
+import coinmarketcap from './coinmarketcap'
+import cryptocompare from './cryptocompare'
+import github from './github'
+import collectors from './collectors'
+import logger from './logger'
+
 export default {
-    coinmarketcap: require('./coinmarketcap'),
-    cryptocompare: require('./cryptocompare'),
-    github: require('./github'),
-    collectors: require('./collectors'),
-    logger: require('./logger')
+    coinmarketcap,
+    cryptocompare,
+    github,
+    collectors,
+    logger
 }

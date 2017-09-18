@@ -8,6 +8,10 @@ import express from 'express'
 import http from 'http'
 import logger from './services/logger'
 
+// Database configuration
+// const database = require('./database')
+import database from './database'
+
 // Console log override
 console.log = logger.console.info
 console.warn = logger.console.warn
@@ -16,11 +20,8 @@ console.access = logger.access.info
 
 // Environment
 global.environment = require('config')
-global.color = require('chalk')
-global.fetch = require('node-fetch')
-
-// Configuration
-const database = require('./database')
+global.colors = require('chalk')
+// global.fetch = require('node-fetch')
 
 // Instantation
 const application = express()
@@ -28,34 +29,38 @@ const server = http.createServer(application)
 
 // Verify that the environment variables have been set
 try {
-    console.log(`API process starting in ${color.yellow(environment.get('environment'))} mode...`)
+    console.log(`API process starting in ${colors.yellow(environment.get('environment'))} mode...`)
 } catch (error) {
     console.warn(
-        `${color.red('ATTENTION')}: Environment variables need to be set in ` +
-        `${color.red('./configuration')} for the ${color.yellow(process.env.NODE_ENV)} environment.`
+        `${colors.red('ATTENTION')}: Environment variables need to be set in ` +
+        `${colors.red('./configuration')} for the ${colors.yellow(process.env.NODE_ENV)} environment.`
     )
     process.exit(1)
 }
 
-// Initialize application
+// Inject configurations into application
+import middleware from './middleware'
+import routes from './routes'
+
+// Connect to database only if in write mode
 try {
     database.connect().then(() => {
-        const middleware = require('./middleware')
-        const routes = require('./routes')
-        const collector = require('./services/collectors')
-
         // Bootstrapping
         middleware(application)
         routes(application)
 
-        // Execute server
         application.listen(environment.get('application.port'), () => {
-            console.log(`Application is listening on port ${color.yellow(environment.get('application.port'))}!`)
+            console.log(`Application is listening on port ${colors.yellow(environment.get('application.port'))}!`)
+            console.log(`Application is set in ${environment.get('application.database.write') ? colors.yellow('write') : colors.green('read')} mode.`)
 
-            collector.start()
+            if (environment.get('application.database.write')) {
+                const collector = require('./services/collectors')
+                console.log('Starting data collector...')
+                collector.start()
+            }
         }).on('error', (error) => {
             if (error.code === 'EADDRINUSE') {
-                console.log(color.red(`Port ${environment.get('application.port')} is in use. Is the server already running?`))
+                console.log(colors.red(`Port ${environment.get('application.port')} is in use. Is the server already running?`))
             }
         })
     })
@@ -63,4 +68,5 @@ try {
     console.error(`There was an error connecting to the database:`, error)
 }
 
+// Export the application & server
 export default server

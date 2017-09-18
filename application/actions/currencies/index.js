@@ -1,6 +1,6 @@
-const { Currency, Price, Timestamp } = require('../../database').models
+// const { Currency, Price, Timestamp } = require('../../database').models
 
-module.exports = {
+export default {
     async commit(prices, metadata) {
         if (metadata) return await this.commitBoth(prices, metadata)
         return await this.commitPrices(prices)

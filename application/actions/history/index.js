@@ -1,7 +1,7 @@
 import { influx } from '../../database'
 import moment from 'moment'
 
-module.exports = {
+export default {
     /**
      * This method persists price history to the InfluxDB instance for storage.
      *

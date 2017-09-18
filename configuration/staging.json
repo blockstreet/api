@@ -1,11 +1,11 @@
 {
     "environment": "staging",
     "application": {
-        "ticker": {
-            "retrieve": true
+        "database": {
+            "write": false
         },
         "content": {
-            "github-branch": ""
+            "branch": "master"
         },
         "port": 4000
     },

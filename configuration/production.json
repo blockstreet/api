@@ -1,11 +1,9 @@
 {
     "environment": "production",
     "application": {
-        "ticker": {
-            "retrieve": true
-        },
+        "mode": "write",
         "content": {
-            "github-branch": ""
+            "branch": "master"
         },
         "port": 4000
     },

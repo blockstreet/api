@@ -43,11 +43,11 @@ export default {
                 spaces = spaces.concat(' ')
             }
 
-            console.log(`${color.yellow(modelName)} ${spaces} model imported`)
+            console.log(`${colors.yellow(modelName)} ${spaces} model imported`)
         })
 
         console.log('--------------------------------')
-        console.log(`Built relations between ${color.yellow(counter)} models`)
+        console.log(`Built relations between ${colors.yellow(counter)} models`)
 
         return this.models
     },

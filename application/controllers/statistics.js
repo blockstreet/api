@@ -1,12 +1,12 @@
-const services = require('../services')
+import { coinmarketcap } from '../services'
 
-module.exports = {
+export default = {
     /**
      * Gets the singleton
      * @param  {[value]}  id [unique identifier]
      * @return {Promise}    [description]
      */
     get: async (request, response) => {
-        return response.json(await services.coinmarketcap.fetch.statistics())
+        return response.json(await coinmarketcap.fetch.statistics())
     }
 }

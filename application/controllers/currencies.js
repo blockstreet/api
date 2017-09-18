@@ -1,9 +1,9 @@
-const moment = require('moment')
+import moment from 'moment'
+import { coinmarketcap, cryptocompare } from '../services'
+import { currencies, history } from '../actions'
 const { Currency, Timestamp, Price } = require('../database').models
-const services = require('../services')
-const actions = require('../actions')
 
-module.exports = {
+export default {
     /**
      * Gets the collection
      * @return {Promise} [description]
@@ -17,8 +17,8 @@ module.exports = {
         if (timestamp) {
             ticker = await Currency.findAll({ include: { model: Price, as: 'price' } })
         } else {
-            const { metadata, states } = await services.coinmarketcap.fetch.currencies()
-            ticker = await actions.currencies.commit(metadata, states)
+            const { metadata, states } = await coinmarketcap.fetch.currencies()
+            ticker = await currencies.commit(metadata, states)
         }
 
         if (!ticker || ticker.length === 0) console.error('Failed to persist currencies to database:', ticker)
@@ -37,8 +37,8 @@ module.exports = {
 
         if (!currency) return console.error(`Invalid data returned from database:`, currency)
 
-        const history = await services.cryptocompare.fetch.history(currency, request.query.interval)
-        const result = await actions.history.commit(currency, history)
+        const history = await cryptocompare.fetch.history(currency, request.query.interval)
+        const result = await history.commit(currency, history)
 
         return response.json(result)
     }

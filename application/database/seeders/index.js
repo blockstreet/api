@@ -25,15 +25,15 @@ const seeders = (() => fs.readdirSync(__dirname)
     }).filter(file => file !== false)
 )()
 
-module.exports = {
+export default {
     up: (database) => {
-        if (seeders.length === 0) console.log(`There are ${color.yellow('no')} seeders to seed`)
+        if (seeders.length === 0) console.log(`There are ${colors.yellow('no')} seeders to seed`)
 
         return Promise.each(seeders,
             (seeder) => {
-                console.log(`${color.magenta(seeder.name)} ${seeder.spaces}    model seeded`)
+                console.log(`${colors.magenta(seeder.name)} ${seeder.spaces}    model seeded`)
                 return seeder.execute.up(database.sequelize, database.models)
-                    .catch(error => console.error(`${color.red(seeder.name)} failed to seed: `, error))
+                    .catch(error => console.error(`${colors.red(seeder.name)} failed to seed: `, error))
             }, {
                 concurrency: 1
             }
@@ -41,13 +41,13 @@ module.exports = {
     },
 
     down: database => {
-        if (seeders.length === 0) console.log(`There are ${color.yellow('no')} seeders to de-seed`)
+        if (seeders.length === 0) console.log(`There are ${colors.yellow('no')} seeders to de-seed`)
 
         return Promise.each(seeders,
             (seeder) => {
-                console.log(`${color.yellow(seeder.name)} ${seeder.spaces} model de-seeded`)
+                console.log(`${colors.yellow(seeder.name)} ${seeder.spaces} model de-seeded`)
                 return seeder.execute.down(database.sequelize, database.models)
-                    .catch(error => console.error(`${color.red(seeder.name)} failed to de-seed: `, error))
+                    .catch(error => console.error(`${colors.red(seeder.name)} failed to de-seed: `, error))
             }, {
                 concurrency: 1
             }

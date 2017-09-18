@@ -1,11 +1,12 @@
 {
-    "environment": "development",
+    "environment": "default",
     "application": {
-        "ticker": {
-            "retrieve": true
+        "databases": {
+            "connect": false,
+            "write": false
         },
         "content": {
-            "github-branch": ""
+            "branch": "master"
         },
         "port": 4000
     },
@@ -35,8 +36,8 @@
                 ]
             }]
         },
-        "force": true,
-        "seed": true
+        "force": false,
+        "seed": false
     },
     "interval": {
         "pull": {
