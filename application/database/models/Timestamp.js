@@ -1,6 +1,6 @@
 import { baseModel } from '../models'
 
-export default (Sequelize, DataTypes) => {
+module.exports = (Sequelize, DataTypes) => {
     const Model = Sequelize.define('Timestamp', {
         source: {
             type: DataTypes.TEXT,

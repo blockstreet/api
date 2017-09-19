@@ -5,7 +5,7 @@ import models from './models'
 import seeder from './seeders'
 import schemas from './schemas'
 
-export default {
+module.exports = {
     /**
      * Sets up the Seqelize & MySQL databases, imports and links their relations
      * @return {object} instantiated database objects

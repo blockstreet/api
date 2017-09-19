@@ -1,6 +1,6 @@
 import { coinmarketcap } from '../services'
 
-export default = {
+export default {
     /**
      * Gets the singleton
      * @param  {[value]}  id [unique identifier]

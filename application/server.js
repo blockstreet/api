@@ -10,7 +10,7 @@ import logger from './services/logger'
 
 // Database configuration
 // const database = require('./database')
-import database from './database'
+// import database from './database'
 
 // Console log override
 console.log = logger.console.info
@@ -38,25 +38,30 @@ try {
     process.exit(1)
 }
 
-// Inject configurations into application
-import middleware from './middleware'
-import routes from './routes'
-
 // Connect to database only if in write mode
 try {
+    // Database configuration
+    const database = require('./database')
+
     database.connect().then(() => {
+        const middleware = require('./middleware')
+        const routes = require('./routes')
+
         // Bootstrapping
         middleware(application)
         routes(application)
 
+        let activeList
+
         application.listen(environment.get('application.port'), () => {
             console.log(`Application is listening on port ${colors.yellow(environment.get('application.port'))}!`)
-            console.log(`Application is set in ${environment.get('application.database.write') ? colors.yellow('write') : colors.green('read')} mode.`)
+            console.log(`Application is set to ${environment.get('application.database.write') ? colors.yellow('write') : colors.green('read')} mode`)
 
             if (environment.get('application.database.write')) {
                 const collector = require('./services/collectors')
+
                 console.log('Starting data collector...')
-                collector.start()
+                activeList = collector.start()
             }
         }).on('error', (error) => {
             if (error.code === 'EADDRINUSE') {

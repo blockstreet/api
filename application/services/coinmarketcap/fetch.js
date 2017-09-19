@@ -1,7 +1,7 @@
 const transformer = require('./transformer')
 const Promise = require('bluebird')
 const axios = require('axios')
-const coinmarketcap = require('coinmarketcap')
+const coinmarketcap = require('coinmarketcap-fetch')
 
 // Configuration
 const options = {
@@ -32,7 +32,8 @@ module.exports = {
         try {
             result = await coinmarketcap.ticker({ limit: environment.get('limit.currencies'), convert: 'usd' })
         } catch (error) {
-            throw new Error('Failed to make request to provider: ', error)
+            // throw new Error('Failed to make request to provider: ', error, typeof error, result)
+            return console.error(error)
         }
 
         if (!result || !result.length) throw new Error('Request to provider did not return data of type Array: ', result)

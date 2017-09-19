@@ -1,7 +1,9 @@
 {
     "environment": "development",
     "application": {
-        "mode": "write",
+        "database": {
+            "write": true
+        },
         "content": {
             "branch": "master"
         },

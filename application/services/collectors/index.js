@@ -31,7 +31,7 @@ module.exports = {
     startAll() {
         console.log('Starting all collectors...')
         this.activeList = Object.keys(this.collectors).map(name => {
-            if (!!this.collectors[name].immediate) this.collectors[name].method()
+            if (this.collectors[name].immediate) this.collectors[name].method()
             return setInterval(() => this.collectors[name].method(), 15 * 1000)
         })
 
