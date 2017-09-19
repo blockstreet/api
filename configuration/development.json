@@ -21,8 +21,8 @@
             "host": "docker.blockstreet.io:8086",
             "database": "blockstreet"
         },
-        "force": false,
-        "seed": false
+        "force": true,
+        "seed": true
     },
     "limit": {
         "currencies": 40

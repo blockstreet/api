@@ -21,12 +21,7 @@ module.exports = {
                     interval: range
                 },
                 fields: {
-                    open: entry.open,
-                    close: entry.close,
-                    high: entry.high,
-                    low: entry.low,
-                    volume_from: entry.volume_from,
-                    volume_to: entry.volume_to
+                    value: entry.value
                 }
             }))).then(async () => {
                 // Keep track of when the currency was updated for future pulls
