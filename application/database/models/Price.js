@@ -13,7 +13,7 @@ module.exports = (Sequelize, DataTypes) => {
             primaryKey: true
         },
         current: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DECIMAL,
             allowNull: false
         },
         supply: {
@@ -26,16 +26,16 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.BIGINT
         },
         change_hour: {
-            type: DataTypes.INTEGER
+            type: DataTypes.DECIMAL
         },
         change_day: {
-            type: DataTypes.INTEGER
+            type: DataTypes.DECIMAL
         },
         change_week: {
-            type: DataTypes.INTEGER
+            type: DataTypes.DECIMAL
         },
         change_month: {
-            type: DataTypes.INTEGER
+            type: DataTypes.DECIMAL
         }
     }, {
         timestamps: true,

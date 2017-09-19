@@ -9,7 +9,7 @@ module.exports = {
      * @param  {Array}      history     Price history of requested currency retrieved from provider
      * @return {Array}                  Database stored price history after conversion
      */
-    commit: async (currency, history) => {
+    commit: async (currency, history, range) => {
         let result
 
         try {
@@ -17,7 +17,8 @@ module.exports = {
                 measurement: 'price_history',
                 timestamp: moment(entry.time * 1000).toDate(),
                 tags: {
-                    currency_id: entry.currency_id
+                    currency_id: entry.currency_id,
+                    interval: range
                 },
                 fields: {
                     open: entry.open,
@@ -29,13 +30,16 @@ module.exports = {
                 }
             }))).then(async () => {
                 // Keep track of when the currency was updated for future pulls
-                currency.updated_history_at = moment().format()
-                return await currency.save().then(async (what) => {
-                    return await influx.query(`
-                        select * from price_history
-                        order by time desc
-                    `)
-                })
+                currency.set(`history_${range}_updated_at`, moment.utc().toDate())
+                return await currency.save()
+                    .then(async (what) => {
+                        return await influx.query(`
+                            select * from price_history
+                            order by time desc
+                        `)
+                    }).catch((error) => {
+                        console.error('Error updating currency history timestamp:', error)
+                    })
             })
         } catch (error) {
             console.error(`Error saving data to InfluxDB! ${error.stack}`)

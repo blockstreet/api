@@ -17,7 +17,6 @@ console.access = logger.access.info
 // Environment
 global.environment = require('config')
 global.color = require('chalk')
-global.fetch = require('node-fetch')
 
 // Configuration
 const database = require('./database')
@@ -51,6 +50,7 @@ try {
         // Execute server
         application.listen(environment.get('application.port'), () => {
             console.log(`Application is listening on port ${color.yellow(environment.get('application.port'))}!`)
+            console.log('--------------------------------')
 
             collector.start()
         }).on('error', (error) => {
