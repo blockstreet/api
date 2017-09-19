@@ -1,7 +1,7 @@
 const transformer = require('./transformer')
 const Promise = require('bluebird')
 const axios = require('axios')
-const coinmarketcap = require('coinmarketcap')
+const coinmarketcap = require('coinmarketcap-fetch')
 
 // Configuration
 const options = {

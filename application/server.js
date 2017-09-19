@@ -17,7 +17,6 @@ console.access = logger.access.info
 // Environment
 global.environment = require('config')
 global.color = require('chalk')
-global.fetch = require('node-fetch')
 
 // Configuration
 const database = require('./database')

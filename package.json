@@ -30,6 +30,7 @@
         "bluebird": "^3.4.7",
         "body-parser": "^1.17.2",
         "coinmarketcap": "^0.2.0",
+        "coinmarketcap-fetch": "git+https://github.com/nkmlombardi/coinmarketcap.git",
         "colors": "^1.1.2",
         "config": "^1.26.1",
         "cors": "^2.8.4",
