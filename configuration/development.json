@@ -24,20 +24,7 @@
         "force": true,
         "seed": true
     },
-    "interval": {
-        "pull": {
-            "currencies": 180000,
-            "histories": {
-                "daily": 43200000,
-                "hourly": 1800000,
-                "minutely": 60000
-            }
-        },
-        "request": {
-            "histories": 500
-        }
-    },
     "limit": {
-        "currencies": 10
+        "currencies": 1
     }
 }

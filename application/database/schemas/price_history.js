@@ -11,6 +11,7 @@ export default {
         volume_to: FieldType['INTEGER']
     },
     tags: [
-        'currency_id'
+        'currency_id',
+        'interval'
     ]
 }

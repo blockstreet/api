@@ -34,7 +34,7 @@
         "colors": "^1.1.2",
         "config": "^1.26.1",
         "cors": "^2.8.4",
-        "cryptocompare": "^0.1.0",
+        "cryptocompare": "git+https://github.com/nkmlombardi/cryptocompare.git",
         "dotenv": "^4.0.0",
         "express": "^4.14.1",
         "helmet": "~1.1.0",

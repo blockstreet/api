@@ -17,7 +17,13 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
         },
-        history_updated_at: {
+        history_minute_updated_at: {
+            type: DataTypes.DATE
+        },
+        history_hour_updated_at: {
+            type: DataTypes.DATE
+        },
+        history_day_updated_at: {
             type: DataTypes.DATE
         }
     }, {

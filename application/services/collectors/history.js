@@ -1,27 +1,29 @@
 import cryptocompare from '../cryptocompare'
 import actions from '../../actions'
+import moment from 'moment'
 const { Currency } = require('../../database').models
 
-export default async (ranges = ['day', 'hour', 'minute']) => {
+export default async (range) => {
     const currencies = await Currency.findAll()
 
-    // For each history range
-    ranges.forEach((range) => {
-        // For each currency
-        currencies.forEach(async (currency) => {
-            if (!currency.unavailable) {
-                const history = await cryptocompare.fetch.history(currency, range, currency.history_updated_at)
+    // For each currency
+    currencies.forEach(async (currency) => {
+        if (!currency.unavailable) {
+            const history = await cryptocompare.fetch.history(currency, range, currency[`history_${range}_updated_at`])
 
-                if (history instanceof Array) {
-                    const result = await actions.history.commit(currency, history)
-                    console.log(`${result.length} new entries added to ${currency.name} price history`)
-                } else {
-                    currency.unavailable = true
-                }
+            if (history.length === 0) {
+                console.log(`${color.blue('History')} | ${color.yellow(currency.symbol.toUpperCase())} | ${color.green(range)} | No new entries added since ${moment(currency.history_updated_at).format()}`)
+
+            } else if (history instanceof Array) {
+                const result = await actions.history.commit(currency, history, range)
+                console.log(`${color.blue('History')} | ${color.yellow(currency.symbol.toUpperCase())} | ${color.green(range)} | ${history.length} new entries added since ${moment(currency.history_updated_at).format()}`)
+
             } else {
-                console.log(`Currency ${currency.name} is unavailable on Cryptocompare`)
+                currency.unavailable = true
             }
-        })
+        } else {
+            console.log(`Currency ${currency.name} is unavailable on Cryptocompare`)
+        }
     })
 
     return true

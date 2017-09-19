@@ -50,6 +50,7 @@ try {
         // Execute server
         application.listen(environment.get('application.port'), () => {
             console.log(`Application is listening on port ${color.yellow(environment.get('application.port'))}!`)
+            console.log('--------------------------------')
 
             collector.start()
         }).on('error', (error) => {

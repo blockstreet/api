@@ -10,9 +10,9 @@ export default async () => {
 
     if (!timestamp) {
         ticker = await actions.currencies.commit(prices, metadata)
-        console.log(`All ${ticker.length} metadata and prices have been updated`)
+        console.log(`${color.blue('Price')} | All ${ticker.length} metadata and prices have been updated`)
     } else {
         ticker = await actions.currencies.commit(prices)
-        console.log(`All ${ticker.length} prices have been updated`)
+        console.log(`${color.blue('Price')} | All ${ticker.length} prices have been updated`)
     }
 }
