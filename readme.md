@@ -32,3 +32,8 @@ And that's it! Logging will output to the `./logs` directory in the root of the 
 
 ## Persistence
 In production we use the node module `pm2` to persist node processes so they aren't killed when the SSH connection that starts them closes. Normally, pm2 can only be used to execute raw node files, and we use ES7 which would disallow this. The workaround for this is running an npm script through pm2.
+
+# Architecture
+This is the software architecture that we are aiming to implement for Blockstreet as a whole. A lot of it involves back-end services, and a big challenge is retrieving and caching price data from remote providers (agnostically). We are hoping this diagram helps on-boarding contributors understand what comprises the Blockstreet platform, and where we are headed.
+
+[![Precursor](https://precursorapp.com/document/Blockstreet-Platform-Architecture-17592206075062.svg?auth-token=)](https://precursorapp.com/document/Blockstreet-Platform-Architecture-17592206075062.svg)
