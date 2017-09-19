@@ -14,22 +14,25 @@ module.exports = {
             method: history,
             immediate: true,
             interval: 12 * 60 * 60 * 1000,
-            arguments: ['day'],
-            delay: 30 * 1000
+            range: 'day',
+            delay: 30 * 1000,
+            stagger: 10000
         },
         'history:hour': {
             method: history,
             immediate: true,
             interval: 30 * 60 * 1000,
-            arguments: ['hour'],
-            delay: 20 * 1000
+            range: 'hour',
+            delay: 20 * 1000,
+            stagger: 5000
         },
         'history:minute': {
             method: history,
-            immediate: true,
-            interval: 30 * 1000,
-            arguments: ['minute'],
-            delay: 10 * 1000
+            immediate: false,
+            interval: 60 * 1000,
+            range: 'minute',
+            delay: 10 * 1000,
+            stagger: 1000
         }
     },
 
@@ -53,7 +56,7 @@ module.exports = {
         console.log(`${color.blue('Collector')} | ${color.yellow(key)} | Starting on a ${collector.interval / 1000} second interval`)
 
         // Start and push the collector onto the activeList
-        activeList.push(setInterval(() => this.collectors[key].method(...collector.arguments), collector.interval))
+        activeList.push(setInterval(() => this.collectors[key].method(collector.range, collector.stagger), collector.interval))
         return this.activeList
     },
 
@@ -70,13 +73,13 @@ module.exports = {
 
             // Execute immediately or after a short delay
             if (collector.immediate) {
-                if (collector.delay) setTimeout(() => collector.method(...collector.arguments), collector.delay)
-                else collector.method(...collector.arguments)
+                if (collector.delay) setTimeout(() => collector.method(collector.range, collector.stagger), collector.delay)
+                else collector.method(collector.range, collector.stagger)
             }
 
             // Start the collector on an interval
             console.log(`${color.blue('Collector')} | ${color.yellow(key)} | ${collector.immediate ? 'Executing immediately and starting' : 'Starting'} on a ${collector.interval / 1000} second interval`)
-            return setInterval(() => collector.method(...collector.arguments), collector.interval)
+            return setInterval(() => collector.method(collector.range, collector.stagger), collector.interval)
         })
 
         // Return a list of the active setInterval functions

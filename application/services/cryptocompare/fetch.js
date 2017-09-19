@@ -8,11 +8,11 @@ module.exports = {
             tryConversion: true
         }
 
-        if (range === 'day') options.limit = 'none'
+        if (timestamp) options.limit = 1
+        else if (range === 'day') options.limit = 'none'
 
         let history
         let endpoint
-        let retry_count = 0
 
         // console.log('Timestamp:', Math.floor((new Date(moment.utc(currency.history_updated_at).toDate())).getTime() / 1000))
 

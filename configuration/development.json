@@ -21,10 +21,10 @@
             "host": "docker.blockstreet.io:8086",
             "database": "blockstreet"
         },
-        "force": true,
-        "seed": true
+        "force": false,
+        "seed": false
     },
     "limit": {
-        "currencies": 1
+        "currencies": 40
     }
 }

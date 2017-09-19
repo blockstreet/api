@@ -3,27 +3,29 @@ import actions from '../../actions'
 import moment from 'moment'
 const { Currency } = require('../../database').models
 
-export default async (range) => {
+export default async (range, stagger) => {
     const currencies = await Currency.findAll()
 
     // For each currency
-    currencies.forEach(async (currency) => {
-        if (!currency.unavailable) {
-            const history = await cryptocompare.fetch.history(currency, range, currency[`history_${range}_updated_at`])
+    currencies.forEach((currency, index) => {
+        setTimeout(async () => {
+            if (!currency.unavailable) {
+                const history = await cryptocompare.fetch.history(currency, range, currency[`history_${range}_updated_at`])
 
-            if (history.length === 0) {
-                console.log(`${color.blue('History')} | ${color.yellow(currency.symbol.toUpperCase())} | ${color.green(range)} | No new entries added since ${moment(currency.history_updated_at).format()}`)
+                if (history.length === 0) {
+                    console.log(`${color.blue('History')} | ${color.yellow(currency.symbol.toUpperCase())} | ${color.green(range)} | No new entries added since ${moment(currency.history_updated_at).format()}`)
 
-            } else if (history instanceof Array) {
-                const result = await actions.history.commit(currency, history, range)
-                console.log(`${color.blue('History')} | ${color.yellow(currency.symbol.toUpperCase())} | ${color.green(range)} | ${history.length} new entries added since ${moment(currency.history_updated_at).format()}`)
+                } else if (history instanceof Array) {
+                    const result = await actions.history.commit(currency, history, range)
+                    console.log(`${color.blue('History')} | ${color.yellow(currency.symbol.toUpperCase())} | ${color.green(range)} | ${history.length} new entries added since ${moment(currency.history_updated_at).format()}`)
 
+                } else {
+                    currency.unavailable = true
+                }
             } else {
-                currency.unavailable = true
+                console.log(`Currency ${currency.name} is unavailable on Cryptocompare`)
             }
-        } else {
-            console.log(`Currency ${currency.name} is unavailable on Cryptocompare`)
-        }
+        }, index * stagger)
     })
 
     return true
