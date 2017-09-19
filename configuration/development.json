@@ -19,21 +19,7 @@
         },
         "influxdb": {
             "host": "docker.blockstreet.io:8086",
-            "database": "blockstreet",
-            "schema": [{
-                "measurement": "price_history",
-                "fields": {
-                    "close": "INTEGER",
-                    "high": "INTEGER",
-                    "low": "INTEGER",
-                    "open": "INTEGER",
-                    "volume_from": "INTEGER",
-                    "volume_to": "INTEGER"
-                },
-                "tags": [
-                    "interval"
-                ]
-            }]
+            "database": "blockstreet"
         },
         "force": true,
         "seed": true
@@ -52,6 +38,6 @@
         }
     },
     "limit": {
-        "currencies": 100
+        "currencies": 10
     }
 }

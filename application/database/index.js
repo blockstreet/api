@@ -3,6 +3,7 @@ import { InfluxDB, FieldType } from 'influx'
 import models from './models'
 import Promise from 'bluebird'
 import seeder from './seeders'
+import schemas from './schemas'
 
 module.exports = {
     /**
@@ -33,14 +34,14 @@ module.exports = {
             }
         )
 
+
         this.influx = new InfluxDB({
             host: environment.get('database.influxdb.host'),
             database: environment.get('database.influxdb.database'),
-            schema: environment.get('database.influxdb.schema').map((entry) => {
-                for (const key in entry.fields) entry.fields[key] = FieldType[key]
-                return entry
-            })
+            schema: schemas
         })
+
+        console.log(this.schema)
 
         const executions = [
             console.log(`${color.yellow('Importing')} models into Postgres database`),
