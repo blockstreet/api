@@ -1,5 +1,6 @@
 import currencies from './currencies'
 import history from './history'
+import generateHistory from './generateHistory'
 
 module.exports = {
     // List of available collectors
@@ -13,7 +14,8 @@ module.exports = {
         'history:day': {
             method: history,
             immediate: true,
-            interval: 12 * 60 * 60 * 1000,
+            interval: false,
+            // interval: 12 * 60 * 60 * 1000,
             range: 'day',
             delay: 30 * 1000,
             stagger: 10000
@@ -21,7 +23,8 @@ module.exports = {
         'history:hour': {
             method: history,
             immediate: true,
-            interval: 30 * 60 * 1000,
+            interval: false,
+            // interval: 30 * 60 * 1000,
             range: 'hour',
             delay: 20 * 1000,
             stagger: 5000
@@ -29,7 +32,8 @@ module.exports = {
         'history:minute': {
             method: history,
             immediate: false,
-            interval: 60 * 1000,
+            interval: false,
+            // interval: 60 * 1000,
             range: 'minute',
             delay: 10 * 1000,
             stagger: 1000
@@ -78,8 +82,10 @@ module.exports = {
             }
 
             // Start the collector on an interval
-            console.log(`${color.blue('Collector')} | ${color.yellow(key)} | ${collector.immediate ? 'Executing immediately and starting' : 'Starting'} on a ${collector.interval / 1000} second interval`)
-            return setInterval(() => collector.method(collector.range, collector.stagger), collector.interval)
+            if (collector.interval) {
+                console.log(`${color.blue('Collector')} | ${color.yellow(key)} | ${collector.immediate ? 'Executing immediately and starting' : 'Starting'} on a ${collector.interval / 1000} second interval`)
+                return setInterval(() => collector.method(collector.range, collector.stagger), collector.interval)
+            }
         })
 
         // Return a list of the active setInterval functions

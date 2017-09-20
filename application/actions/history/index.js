@@ -9,7 +9,7 @@ module.exports = {
      * @param  {Array}      history     Price history of requested currency retrieved from provider
      * @return {Array}                  Database stored price history after conversion
      */
-    commit: async (currency, history, range) => {
+    backFill: async (currency, history, range) => {
         let result
 
         try {
@@ -35,6 +35,41 @@ module.exports = {
                     }).catch((error) => {
                         console.error('Error updating currency history timestamp:', error)
                     })
+            })
+        } catch (error) {
+            console.error(`Error saving data to InfluxDB! ${error.stack}`)
+        }
+
+        return result
+    },
+
+
+    /**
+     * This method persists price history to the InfluxDB instance for storage.
+     *
+     * @param  {Object}     currency    Sequelize database object that was matched to the requested currency
+     * @param  {Array}      history     Price history of requested currency retrieved from provider
+     * @return {Array}                  Database stored price history after conversion
+     */
+    commit: async (entries, range) => {
+        let result
+
+        try {
+            result = await influx.writePoints(entries.map(entry => ({
+                measurement: 'price_history',
+                timestamp: moment(entry.time * 1000).toDate(),
+                tags: {
+                    currency_id: entry.currency.id,
+                    interval: range
+                },
+                fields: {
+                    value: entry.value
+                }
+            }))).then(async () => {
+                // Keep track of when the currency was updated for future pulls
+                entries.forEach((entry) => {
+                    entry.currency.set(`history_${range}_updated_at`, moment.utc().toDate())
+                })
             })
         } catch (error) {
             console.error(`Error saving data to InfluxDB! ${error.stack}`)
