@@ -1,12 +1,12 @@
 // Deprecation warnings drive me crazy
 // Set the directory node-config checks for env variables
 process.noDeprecation = true
-process.env.NODE_CONFIG_DIR = './configuration'
+process.env.NODE_CONFIG_DIR = './environment'
 
 // External dependencies
 import express from 'express'
 import http from 'http'
-import logger from './services/logger'
+import logger from './application/services/logger'
 
 // Console log override
 console.log = logger.console.info
@@ -19,7 +19,7 @@ global.environment = require('config')
 global.color = require('chalk')
 
 // Configuration
-const database = require('./database')
+const database = require('./application/database')
 
 // Instantation
 const application = express()
@@ -39,9 +39,9 @@ try {
 // Initialize application
 try {
     database.connect().then(() => {
-        const middleware = require('./middleware')
-        const routes = require('./routes')
-        const collector = require('./services/collectors')
+        const middleware = require('./application/middleware')
+        const routes = require('./application/routes')
+        const collector = require('./application/services/collectors')
 
         // Bootstrapping
         middleware(application)

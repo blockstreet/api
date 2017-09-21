@@ -25,6 +25,6 @@
         "seed": false
     },
     "limit": {
-        "currencies": 40
+        "currencies": 50
     }
 }

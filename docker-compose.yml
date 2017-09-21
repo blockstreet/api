@@ -13,7 +13,7 @@ services:
     database-timeseries-telegraf:
         image: telegraf:1.4.0
         volumes:
-            - ./docker/etc/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+            - ./docker/configuration/telegraf.conf:/etc/telegraf/telegraf.conf:ro
         links:
             - database-timeseries
         ports:

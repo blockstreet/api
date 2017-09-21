@@ -1,11 +1,11 @@
 {
-    "environment": "staging",
+    "environment": "localhost",
     "application": {
         "ticker": {
             "retrieve": true
         },
         "content": {
-            "github-branch": ""
+            "github-branch": "master"
         },
         "port": 4000
     },
@@ -14,17 +14,17 @@
             "database": "blockstreet",
             "user": "posty",
             "password": "posty",
-            "host": "docker.blockstreet.io",
+            "host": "localhost",
             "port": 5432
         },
         "influxdb": {
-            "host": "docker.blockstreet.io:8086",
+            "host": "localhost:8086",
             "database": "blockstreet"
         },
         "force": true,
         "seed": true
     },
     "limit": {
-        "currencies": 1
+        "currencies": 50
     }
 }
