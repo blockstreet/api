@@ -1,0 +1,6 @@
+.git
+.gitignore
+readme.md
+docker-compose.yml
+node_modules
+logs/*
