@@ -1,6 +1,6 @@
 {
     "name": "blockstreet-api",
-    "version": "0.0.3",
+    "version": "1.0.0",
     "description": "The backend API and services that power the Blockstreet web application.",
     "main": "server.js",
     "scripts": {
@@ -19,29 +19,23 @@
     "devDependencies": {
         "babel-cli": "^6.24.1",
         "babel-core": "^6.25.0",
-        "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
-        "babel-preset-es2017": "^6.24.1",
         "babel-watch": "^2.0.7"
     },
     "dependencies": {
-        "async-redis": "^1.0.0",
         "axios": "^0.16.2",
-        "bcryptjs": "^2.4.3",
+        "babel-preset-env": "^1.6.0",
         "bluebird": "^3.4.7",
         "body-parser": "^1.17.2",
-        "coinmarketcap": "^0.2.0",
         "coinmarketcap-fetch": "git+https://github.com/nkmlombardi/coinmarketcap.git",
         "colors": "^1.1.2",
         "config": "^1.26.1",
         "cors": "^2.8.4",
         "cryptocompare": "git+https://github.com/nkmlombardi/cryptocompare.git",
-        "dotenv": "^4.0.0",
         "express": "^4.14.1",
         "helmet": "~1.1.0",
         "influx": "^5.0.7",
         "moment": "^2.18.1",
         "morgan": "~1.6.1",
-        "node-fetch": "^1.7.1",
         "pg": "^6.4.1",
         "response-time": "^2.3.2",
         "sequelize": "^4.3.2",
