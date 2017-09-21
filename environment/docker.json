@@ -1,12 +1,7 @@
 {
-    "environment": "localhost",
+    "environment": "docker",
     "application": {
-        "ticker": {
-            "retrieve": true
-        },
-        "content": {
-            "github-branch": "master"
-        },
+        "github-branch": "master",
         "port": 4000
     },
     "database": {
@@ -14,11 +9,11 @@
             "database": "blockstreet",
             "user": "posty",
             "password": "posty",
-            "host": "localhost",
+            "host": "database-relational",
             "port": 5432
         },
         "influxdb": {
-            "host": "localhost:8086",
+            "host": "database-timeseries:8086",
             "database": "blockstreet"
         },
         "force": true,

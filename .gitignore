@@ -1,4 +1,4 @@
 node_modules/
 logs/*.log
-docker/data
+docker/database
 docker/api

@@ -5,7 +5,7 @@
             "retrieve": true
         },
         "content": {
-            "github-branch": ""
+            "github-branch": "master"
         },
         "port": 4000
     },

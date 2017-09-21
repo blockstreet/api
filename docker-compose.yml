@@ -4,7 +4,7 @@ services:
     database-timeseries:
         image: influxdb:1.3.5
         volumes:
-            - ./docker/data/influxdb:/var/lib/influxdb
+            - ./docker/database/timeseries:/var/lib/influxdb
         ports:
             - "8086:8086"
 
@@ -28,13 +28,13 @@ services:
     database-timeseries-chronograf:
         image: chronograf:1.3.8
         environment:
-            INFLUXDB_URL: http://influxdb:8086
-            KAPACITOR_URL: http://kapacitor:9092
-        ports:
-            - "8888:8888"
+            INFLUXDB_URL: http://database-timeseries:8086
+            KAPACITOR_URL: http://database-timeseries-kapacitor:9092
         links:
             - database-timeseries
             - database-timeseries-kapacitor
+        ports:
+            - "8888:8888"
         depends_on:
             - database-timeseries
 
@@ -43,8 +43,8 @@ services:
     database-timeseries-kapacitor:
         image: kapacitor:1.3.3
         environment:
-            KAPACITOR_HOSTNAME: kapacitor
-            KAPACITOR_INFLUXDB_0_URLS_0: http://influxdb:8086
+            KAPACITOR_HOSTNAME: database-timeseries-kapacitor
+            KAPACITOR_INFLUXDB_0_URLS_0: http://database-timeseries:8086
         links:
             - database-timeseries
         ports:
@@ -55,25 +55,25 @@ services:
 
     # Define a service for using the influx CLI tool.
     # docker-compose run influxdb-cli
-    database-timeseries-cli:
-        image: influxdb:1.3.5
-        entrypoint:
-            - influx
-            - -host
-            - influxdb
-        links:
-            - database-timeseries
+    # database-timeseries-cli:
+    #     image: influxdb:1.3.5
+    #     entrypoint:
+    #         - influx
+    #         - host
+    #         - influxdb
+    #     links:
+    #         - database-timeseries
 
 
     # Define a service for using the kapacitor CLI tool.
     # docker-compose run kapacitor-cli
-    database-timeseries-kapacitor-cli:
-        image: kapacitor:1.3.3
-        entrypoint: bash
-        environment:
-            KAPACITOR_URL: http://kapacitor:9092
-        links:
-            - database-timeseries-kapacitor
+    # database-timeseries-kapacitor-cli:
+    #     image: kapacitor:1.3.3
+    #     entrypoint: bash
+    #     environment:
+    #         KAPACITOR_URL: http://database-timeseries-kapacitor:9092
+    #     links:
+    #         - database-timeseries-kapacitor
 
 
     # Relational POSTGRES database to store price metadata other
@@ -100,14 +100,13 @@ services:
     # RESTful API that services data to the front-end application
     blockstreet-api:
         build: .
-        volumes:
-            - "./docker/api:/src/api"
-        ports:
-            - "4000:4000"
+        environment:
+            NODE_ENV: docker
         links:
             - database-relational
             - database-timeseries
-
+        ports:
+            - "4000:4000"
         depends_on:
             - database-relational
             - database-timeseries

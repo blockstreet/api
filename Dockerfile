@@ -10,23 +10,14 @@ RUN mkdir /src
 # Copy application into container
 ADD ./ /src/api
 
-COPY package.json /src/api
-COPY package-lock.json /src/api
-
 # Set directory to execute commands in
 WORKDIR /src/api
-
-RUN npm -v
-
-RUN ls -la
 
 # Install dependencies
 RUN npm install --loglevel=warn
 
 # Expose the port we are running on
-EXPOSE 3000
-
-CMD export NODE_ENV=production
+EXPOSE 4000
 
 # Execute the application
-CMD ["npm", "start"]
+ENTRYPOINT ["npm", "run", "start"]
