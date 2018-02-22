@@ -4,14 +4,14 @@
             "retrieve": true
         },
         "content": {
-            "github-branch": ""
+            "github-branch": "master"
         },
         "port": 4000
     },
     "database": {
         "redis": {
-            "host": "",
-            "password": "",
+            "host": "localhost:6379",
+            "password": "77dd28dffd2c1827c46329798574a226dbb44556d6d7b1f47fa128928d495ba1",
             "persist": false
         }
     },
@@ -29,6 +29,6 @@
         }
     },
     "limit": {
-        "currencies": 100
+        "currencies": 50
     }
 }

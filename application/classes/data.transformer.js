@@ -36,21 +36,30 @@ module.exports = class DataTransformer {
     }
 
     currencies(currencies) {
-        return currencies.slice(0, config.get('limit.currencies')).map((currency) => {
-            return {
-                id: currency.id,
-                name: currency.name,
-                symbol: currency.symbol,
-                rank: Number(currency.rank),
-                price: Number(currency.price_usd),
-                market_cap: Number(currency.market_cap_usd),
-                supply: Number(currency.available_supply),
-                percent_change_hour: Number(currency.percent_change_1h),
-                percent_change_day: Number(currency.percent_change_24h),
-                percent_change_week: Number(currency.percent_change_7d),
-                volume_day: Number(currency['24h_volume_usd']),
-                last_updated: Number(currency.last_updated)
-            }
-        })
+        const blacklist = [
+            'bitcoin-cash',
+            'ethereum-classic',
+            'bitconnect',
+            'tether'
+        ]
+
+        return currencies
+            .filter(currency => !blacklist.includes(currency.id))
+            .slice(0, config.get('limit.currencies')).map((currency) => {
+                return {
+                    id: currency.id,
+                    name: currency.name,
+                    symbol: currency.symbol,
+                    rank: Number(currency.rank),
+                    price: Number(currency.price_usd),
+                    market_cap: Number(currency.market_cap_usd),
+                    supply: Number(currency.available_supply),
+                    percent_change_hour: Number(currency.percent_change_1h),
+                    percent_change_day: Number(currency.percent_change_24h),
+                    percent_change_week: Number(currency.percent_change_7d),
+                    volume_day: Number(currency['24h_volume_usd']),
+                    last_updated: Number(currency.last_updated)
+                }
+            })
     }
 }

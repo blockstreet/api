@@ -25,7 +25,7 @@ module.exports = class DataService {
         let result
 
         try {
-            result = await axios.get('http://api.coinmarketcap.com/v1/ticker/?convert=USD')
+            result = await axios.get(`http://api.coinmarketcap.com/v1/ticker/?convert=USD&limit=${config.get('limit.currencies')}`)
         } catch (error) {
             throw new Error('Failed to make request to provider: ', error)
         }

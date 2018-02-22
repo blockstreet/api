@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "babel-watch ./application/server.js",
     "dev": "nodemon ./application/server.js",
-    "config": "node ./build/config.js"
+    "config": "node ./build/config.js",
+    "prod": "babel-node ./application/server.js"  
   },
   "author": "",
   "license": "ISC",
