@@ -1,5 +1,6 @@
 import currencies from './currencies'
 import history from './history'
+import snapshot from './snapshot'
 
 module.exports = {
     // List of available collectors
@@ -10,28 +11,32 @@ module.exports = {
             interval: 60 * 1000,
             arguments: []
         },
+        'snapshot': {
+            method: snapshot,
+            immediate: true,
+            interval: 60 * 1000,
+            arguments: [],
+            delay: 5 * 1000
+        },
         'history:day': {
             method: history,
             immediate: true,
-            interval: 12 * 60 * 60 * 1000,
             range: 'day',
-            delay: 30 * 1000,
+            delay: 90 * 1000,
             stagger: 10000
         },
         'history:hour': {
             method: history,
             immediate: true,
-            interval: 30 * 60 * 1000,
             range: 'hour',
-            delay: 20 * 1000,
+            delay: 60 * 1000,
             stagger: 5000
         },
         'history:minute': {
             method: history,
-            immediate: false,
-            interval: 60 * 1000,
+            immediate: true,
             range: 'minute',
-            delay: 10 * 1000,
+            delay: 30 * 1000,
             stagger: 1000
         }
     },
@@ -53,10 +58,12 @@ module.exports = {
         // Determine which collector we are referencing
         const collector = this.collectors[key]
 
-        console.log(`${color.blue('Collector')} | ${color.yellow(key)} | Starting on a ${collector.interval / 1000} second interval`)
-
         // Start and push the collector onto the activeList
-        activeList.push(setInterval(() => this.collectors[key].method(collector.range, collector.stagger), collector.interval))
+        if (collector.interval) {
+            console.log(`${color.blue('Collector')} | ${color.yellow(key)} | Starting on a ${collector.interval / 1000} second interval`)
+            activeList.push(setInterval(() => this.collectors[key].method(collector.range, collector.stagger), collector.interval))
+        }
+
         return this.activeList
     },
 
@@ -73,14 +80,19 @@ module.exports = {
 
             // Execute immediately or after a short delay
             if (collector.immediate) {
+                console.log(`${color.blue('Collector')} | ${color.yellow(key)} | Executing immediately with ${collector.delay} delay`)
                 if (collector.delay) setTimeout(() => collector.method(collector.range, collector.stagger), collector.delay)
                 else collector.method(collector.range, collector.stagger)
             }
 
             // Start the collector on an interval
-            console.log(`${color.blue('Collector')} | ${color.yellow(key)} | ${collector.immediate ? 'Executing immediately and starting' : 'Starting'} on a ${collector.interval / 1000} second interval`)
-            return setInterval(() => collector.method(collector.range, collector.stagger), collector.interval)
+            if (collector.interval) {
+                console.log(`${color.blue('Collector')} | ${color.yellow(key)} | Starting on a ${collector.interval / 1000} second interval`)
+                setInterval(() => collector.method(collector.range, collector.stagger), collector.interval)
+            }
         })
+
+        return this.activeList
 
         // Return a list of the active setInterval functions
         return this.activeList
